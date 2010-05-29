@@ -1,11 +1,13 @@
-package RDF::Query::HTTPBindings;
+package RDF::Query::HTTPBindings::Role;
 
-use warnings;
-use strict;
+use Moose::Role;
+use RDF::Query::Model;
+use HTTP::Response;
+
 
 =head1 NAME
 
-RDF::Query::HTTPBindings - The great new RDF::Query::HTTPBindings!
+RDF::Query::HTTPBindings::Role - A Moose::Role to implement SPARQL 1.1 HTTP Bindings
 
 =head1 VERSION
 
@@ -18,30 +20,71 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+This module attempts to track the SPARQL 1.1. HTTP Bindings document,
+currently mostly as a discussion item.
 
-Perhaps a little code snippet.
-
-    use RDF::Query::HTTPBindings;
-
-    my $foo = RDF::Query::HTTPBindings->new();
-    ...
+It implements a Moose::Role with a default implementation, which
+contains the specified queries.
 
 =head1 METHODS
 
-=head2 function1
+=head2 model
+
+The model we're working on.
 
 =cut
 
-sub function1 {
-}
+has 'model' => (is => 'rw', isa => 'RDF::Query::Model');
 
-=head2 function2
+
+=head2 get_response
+
+What to do with a GET request. Returns a HTTP::Response object.
 
 =cut
 
-sub function2 {
+sub get_response {
+  my $self = shift;
+  my $res = HTTP::Response->new;
+  return $res;
 }
+
+=head2 put_response
+
+What to do with a PUT request. Returns a HTTP::Response object.
+
+=cut
+
+sub put_response {
+  my $self = shift;
+  my $res = HTTP::Response->new;
+  return $res;
+}
+
+=head2 post_response
+
+What to do with a POST request. Returns a HTTP::Response object.
+
+=cut
+
+sub post_response {
+  my $self = shift;
+  my $res = HTTP::Response->new;
+  return $res;
+}
+
+=head2 delete_response
+
+What to do with a DELETE request. Returns a HTTP::Response object.
+
+=cut
+
+sub delete_response {
+  my $self = shift;
+  my $res = HTTP::Response->new;
+  return $res;
+}
+
 
 =head1 AUTHOR
 
@@ -102,4 +145,6 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-1; # End of RDF::Query::HTTPBindings
+
+
+1;
