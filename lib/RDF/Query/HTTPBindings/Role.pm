@@ -1,8 +1,11 @@
 package RDF::Query::HTTPBindings::Role;
 
 use Moose::Role;
+use namespace::autoclean;
+
 use RDF::Query::Model;
-use HTTP::Response;
+use Plack::Response;
+
 
 
 =head1 NAME
@@ -18,6 +21,7 @@ Version 0.01
 our $VERSION = '0.01';
 
 
+
 =head1 SYNOPSIS
 
 This module attempts to track the SPARQL 1.1. HTTP Bindings document,
@@ -25,6 +29,16 @@ currently mostly as a discussion item.
 
 It implements a Moose::Role with a default implementation, which
 contains the specified queries.
+
+=head1 DESCRIPTION
+
+The SPARQL 1.1 HTTP bindings document, which can be found at
+L<http://www.w3.org/TR/sparql11-http-rdf-update/> specifies how RDF
+graphs can be updated with using four HTTP verbs in a RESTful
+manner. This module is first and foremost intended as a discussion
+item implementation of the proposed protocol.
+
+
 
 =head1 METHODS
 
@@ -39,49 +53,49 @@ has 'model' => (is => 'rw', isa => 'RDF::Query::Model');
 
 =head2 get_response
 
-What to do with a GET request. Returns a HTTP::Response object.
+What to do with a GET request. Returns a Plack::Response object.
 
 =cut
 
 sub get_response {
   my $self = shift;
-  my $res = HTTP::Response->new;
+  my $res = Plack::Response->new;
   return $res;
 }
 
 =head2 put_response
 
-What to do with a PUT request. Returns a HTTP::Response object.
+What to do with a PUT request. Returns a Plack::Response object.
 
 =cut
 
 sub put_response {
   my $self = shift;
-  my $res = HTTP::Response->new;
+  my $res = Plack::Response->new;
   return $res;
 }
 
 =head2 post_response
 
-What to do with a POST request. Returns a HTTP::Response object.
+What to do with a POST request. Returns a Plack::Response object.
 
 =cut
 
 sub post_response {
   my $self = shift;
-  my $res = HTTP::Response->new;
+  my $res = Plack::Response->new;
   return $res;
 }
 
 =head2 delete_response
 
-What to do with a DELETE request. Returns a HTTP::Response object.
+What to do with a DELETE request. Returns a Plack::Response object.
 
 =cut
 
 sub delete_response {
   my $self = shift;
-  my $res = HTTP::Response->new;
+  my $res = Plack::Response->new;
   return $res;
 }
 

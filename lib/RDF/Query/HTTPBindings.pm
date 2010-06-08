@@ -1,7 +1,10 @@
 package RDF::Query::HTTPBindings;
 
-use warnings;
-use strict;
+use Moose;
+use namespace::autoclean;
+
+
+with 'RDF::Query::HTTPBindings::Role';
 
 =head1 NAME
 
@@ -29,19 +32,6 @@ Perhaps a little code snippet.
 
 =head1 METHODS
 
-=head2 function1
-
-=cut
-
-sub function1 {
-}
-
-=head2 function2
-
-=cut
-
-sub function2 {
-}
 
 =head1 AUTHOR
 
@@ -101,5 +91,7 @@ See http://dev.perl.org/licenses/ for more information.
 
 
 =cut
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of RDF::Query::HTTPBindings
