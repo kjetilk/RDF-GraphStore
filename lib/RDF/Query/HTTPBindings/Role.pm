@@ -51,14 +51,16 @@ The model we're working on.
 has 'model' => (is => 'rw', isa => 'RDF::Query::Model');
 
 
-=head2 get_response
+=head2 get_response($uri | $uri_string)
 
-What to do with a GET request. Returns a Plack::Response object.
+What to do with a GET request. Takes a URI object or a simple string
+as argument. Returns a Plack::Response object.
 
 =cut
 
 sub get_response {
   my $self = shift;
+  my $uri = _check_uri(shift);
   my $res = Plack::Response->new;
   return $res;
 }
@@ -98,6 +100,15 @@ sub delete_response {
   my $res = Plack::Response->new;
   return $res;
 }
+
+
+sub _check_uri {
+  my $uri = shift;
+  confess 'No URI given' unless (defined($uri));
+  return $uri if ($uri->isa('URI'));
+  return URI->new($uri);
+}
+
 
 
 =head1 AUTHOR
