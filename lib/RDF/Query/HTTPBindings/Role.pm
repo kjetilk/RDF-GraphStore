@@ -5,7 +5,7 @@ use namespace::autoclean;
 
 use RDF::Query::Model;
 use Plack::Response;
-
+use URI;
 
 
 =head1 NAME

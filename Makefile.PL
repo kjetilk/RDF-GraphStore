@@ -7,7 +7,8 @@ author   q{Kjetil Kjernsmo <kjetilk@cpan.org>};
 license  'perl';
 
 test_requires 'Test::More';
-
+test_requires 'Test::Moose';
+test_requires 'Test::Exception';
 
 requires 'Moose'			=> 0;
 requires 'Log::Log4perl'		=> 0;
@@ -15,6 +16,7 @@ requires 'RDF::Trine'			=> 0.122;
 requires 'RDF::Query'			=> 2.0;
 requires 'Plack::Response'		=> 0;
 requires 'namespace::autoclean'         => 0;
+requires 'URI'                          => 0;
 
 
 auto_set_repository;
