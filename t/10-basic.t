@@ -15,6 +15,7 @@ ok($uri, "URI object OK");
 
 does_ok($hb, 'RDF::Query::HTTPBindings::Role');
 has_attribute_ok($hb, 'model');
+has_attribute_ok($hb, 'headers_in');
 
 {
   isa_ok($hb->get_response($uri_string), 'Plack::Response', 'get_response returns');

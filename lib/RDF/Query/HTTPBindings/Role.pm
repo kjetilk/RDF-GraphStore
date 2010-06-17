@@ -3,7 +3,11 @@ package RDF::Query::HTTPBindings::Role;
 use Moose::Role;
 use namespace::autoclean;
 
+use RDF::Query;
 use RDF::Query::Model;
+use RDF::Trine::Iterator;
+use RDF::Trine::Serializer;
+
 use Plack::Response;
 use URI;
 use URI::Escape;
@@ -52,6 +56,18 @@ The model we're working on.
 has 'model' => (is => 'rw', isa => 'RDF::Query::Model');
 
 
+=item C<< headers_in ( [ $headers ] ) >>
+
+Returns the L<HTTP::Headers> object if it exists or sets it if a L<HTTP::Headers> object is given as parameter.
+
+=cut
+
+has headers_in => ( is => 'rw', isa => 'HTTP::Headers', builder => '_build_headers_in');
+
+sub _build_headers_in {
+    return HTTP::Headers->new() ;
+}
+
 =head2 get_response($uri | $uri_string)
 
 What to do with a GET request. Takes a URI object or a simple string
@@ -62,8 +78,23 @@ as argument. Returns a Plack::Response object.
 sub get_response {
   my $self = shift;
   my $uri = _check_uri(shift);
-  my $query = 
   my $res = Plack::Response->new;
+  my $sparql = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <$uri> { ?s ?p ?o } }";
+  my $query = RDF::Query->new($sparql);
+  my $iterator = $query->execute($self->model);
+  if (defined($iterator) && ($iterator->is_graph) && ($iterator->peek)) {
+    my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
+    my $output = $serializer->serialize_iterator_to_string($iterator);
+    $res->body($output);
+    $res->content_type($ct);
+    $res->content_length(length($output));
+    $res->status(200);
+  } else {
+    $res->status(404);
+    $res->content_type('text/plain');
+    $res->body('Graph not found');
+  }
+
   return $res;
 }
 
