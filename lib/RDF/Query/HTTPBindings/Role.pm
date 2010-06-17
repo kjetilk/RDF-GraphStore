@@ -6,6 +6,7 @@ use namespace::autoclean;
 use RDF::Query::Model;
 use Plack::Response;
 use URI;
+use URI::Escape;
 
 
 =head1 NAME
@@ -61,6 +62,7 @@ as argument. Returns a Plack::Response object.
 sub get_response {
   my $self = shift;
   my $uri = _check_uri(shift);
+  my $query = 
   my $res = Plack::Response->new;
   return $res;
 }
@@ -105,6 +107,7 @@ sub delete_response {
 sub _check_uri {
   my $uri = shift;
   confess 'No URI given' unless (defined($uri));
+  $uri = uri_escape($uri, ">");
   return $uri if ($uri->isa('URI'));
   return URI->new($uri);
 }
