@@ -87,7 +87,7 @@ sub get_response {
     my $output = $serializer->serialize_iterator_to_string($iterator);
     $res->body($output);
     $res->content_type($ct);
-    $res->content_length(length($output));
+    $res->content_length(bytes::length($output));
     $res->status(200);
   } else {
     $res->status(404);
