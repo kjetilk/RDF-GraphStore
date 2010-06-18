@@ -56,7 +56,7 @@ The model we're working on.
 has 'model' => (is => 'rw', isa => 'RDF::Query::Model');
 
 
-=item C<< headers_in ( [ $headers ] ) >>
+=head2 headers_in ( [ $headers ] )
 
 Returns the L<HTTP::Headers> object if it exists or sets it if a L<HTTP::Headers> object is given as parameter.
 
@@ -82,9 +82,10 @@ sub get_response {
   my $sparql = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <$uri> { ?s ?p ?o } }";
   my $query = RDF::Query->new($sparql);
   my $iterator = $query->execute($self->model);
-  if (defined($iterator) && ($iterator->is_graph) && ($iterator->peek)) {
-    my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
-    my $output = $serializer->serialize_iterator_to_string($iterator);
+  # Need to serialize first to find the number of returned triples
+  my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
+  my $output = $serializer->serialize_iterator_to_string($iterator);
+  if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
     $res->body($output);
     $res->content_type($ct);
     $res->content_length(bytes::length($output));

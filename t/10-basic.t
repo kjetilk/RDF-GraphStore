@@ -2,6 +2,7 @@ use Test::More; # tests => 8;
 use Test::Moose;
 use Test::Exception;
 use URI;
+use HTTP::Headers;
 
 BEGIN {
   use_ok 'RDF::Query::HTTPBindings';
@@ -16,6 +17,8 @@ ok($uri, "URI object OK");
 does_ok($hb, 'RDF::Query::HTTPBindings::Role');
 has_attribute_ok($hb, 'model');
 has_attribute_ok($hb, 'headers_in');
+
+$hb->headers_in(HTTP::Headers->new('Accept' => 'text/turtle;q=1, */*;q=0.01'));
 
 {
   isa_ok($hb->get_response($uri_string), 'Plack::Response', 'get_response returns');
