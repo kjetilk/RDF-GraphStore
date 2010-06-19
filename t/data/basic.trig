@@ -1,0 +1,11 @@
+# This is TriG, not Turtle
+
+</graphs/g1> {
+	     </foo> <http://www.w3.org/2000/01/rdf-schema#label> "This is a test"@en ;
+       	     <http://xmlns.com/foaf/0.1/page> <http://en.wikipedia.org/wiki/Foo> .
+	     </bar/baz/bing> <http://www.w3.org/2000/01/rdf-schema#label> "Testing with longer URI."@en .
+}
+
+</graphs/g2> {
+	     </utf8test> <http://www.w3.org/2000/01/rdf-schema#label> "Blåbærsyltetøy"@no .
+}
