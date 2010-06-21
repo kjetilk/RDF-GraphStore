@@ -4,7 +4,7 @@ use Moose::Role;
 use namespace::autoclean;
 
 use RDF::Query;
-use RDF::Query::Model;
+use RDF::Trine::Model;
 use RDF::Trine::Iterator;
 use RDF::Trine::Serializer;
 
@@ -53,7 +53,7 @@ The model we're working on.
 
 =cut
 
-has 'model' => (is => 'rw', isa => 'RDF::Query::Model');
+has 'model' => (is => 'rw', isa => 'RDF::Trine::Model');
 
 
 =head2 headers_in ( [ $headers ] )
