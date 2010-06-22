@@ -31,6 +31,7 @@ ok($uri, "URI object OK");
 my $get = $hb->get_response($uri);
 isa_ok($get, 'Plack::Response', 'get_response returns');
 
+is($get->code, 200, "Getting a graph OK");
 diag ($get->body);
 
 
