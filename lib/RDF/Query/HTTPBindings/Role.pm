@@ -3,7 +3,7 @@ package RDF::Query::HTTPBindings::Role;
 use Moose::Role;
 use namespace::autoclean;
 
-use RDF::Query 2.9;
+use RDF::Query;
 use RDF::Trine::Model;
 use RDF::Trine::Iterator;
 use RDF::Trine::Serializer;
@@ -119,7 +119,11 @@ What to do with a POST request. Returns a Plack::Response object.
 
 sub post_response {
   my $self = shift;
+  my $model = shift;
   my $res = Plack::Response->new;
+  unless ($model->isa('RDF::Trine::Model')) {
+    $res->code(204);
+  }
   return $res;
 }
 

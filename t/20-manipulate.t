@@ -23,21 +23,66 @@ $parser->parse_file_into_model( $base_uri, $file, $model );
 my $hb = RDF::Query::HTTPBindings->new(model => $model);
 
 
-my $uri_string = 'http://localhost:5000/graphs/g1';
-my $uri = URI->new($uri_string);
-ok($uri, "URI object OK");
 
+my $uri1 = URI->new('http://localhost:5000/graphs/g1');
+ok($uri1, "URI 1 object OK");
 
-my $get = $hb->get_response($uri);
+my $uri2 = URI->new('http://localhost:5000/graphs/g3');
+ok($uri2, "URI 2 object OK");
+
+diag "GET request";
+my $get = $hb->get_response($uri1);
 isa_ok($get, 'Plack::Response', 'get_response returns');
 
 is($get->code, 200, "Getting a graph OK");
-diag ($get->body);
+like($get->body, qr/"This is a test"\@en/, 'Test string found');
+like($get->body, qr|<http://localhost:5000/foo> <http://xmlns.com/foaf/0.1/page> <http://en.wikipedia.org/wiki/Foo> ;\s+<http://www.w3.org/2000/01/rdf-schema#label> "This is a test"\@en .\s+<http://localhost:5000/bar/baz/bing> <http://www.w3.org/2000/01/rdf-schema#label> "Testing with longer URI."\@en .|, "All content matches");
 
+is($get->content_type, 'text/turtle', 'Correct content type');
 
-isa_ok($hb->put_response($uri), 'Plack::Response', 'put_response returns');
-isa_ok($hb->post_response($uri), 'Plack::Response', 'post_response returns');
-isa_ok($hb->delete_response($uri), 'Plack::Response', 'delete_response returns');
+my $get2 = $hb->get_response($uri2);
+isa_ok($get2, 'Plack::Response', 'get_response returns');
+
+is($get2->code, 404, "Getting a non-existent graph returns 404");
+
+diag 'POST request';
+
+{
+  my $post = $hb->post_response($uri1);
+  isa_ok($post, 'Plack::Response', 'post_response returns');
+  is($post->code, 204, "POSTing no model gives 204");
+  is(length($post->body), 0, "No content returned");
+}
+
+TODO: {
+  local $TODO = "Implement POST";
+  my $inputmodel = RDF::Trine::Model->temporary_model;
+  $inputmodel->add_statement(RDF::Trine::Statement->new(
+			      RDF::Trine::Node::Resource->new('/foo', $base_uri),
+			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
+			      RDF::Trine::Node::Literal->new('DAHUT')));
+  my $post = $hb->post_response($uri1, $inputmodel);
+  isa_ok($post, 'Plack::Response', 'post_response returns');
+  is($post->code, 204, "POSTing a model gives 204");
+  is(length($post->body), 0, "No content returned");
+
+  my $get_after_post = $hb->get_response($uri1);
+  isa_ok($get_after_post, 'Plack::Response', 'get_response returns');
+
+  is($get_after_post->code, 200, "Getting POSTed graph OK");
+  like($get_after_post->body, qr/"DAHUT"\@en/, 'Posted test string refound');
+  like($get_after_post->body, qr|<http://localhost:5000/foo> <http://xmlns.com/foaf/0.1/page> <http://en.wikipedia.org/wiki/Foo> ;\s+<http://www.w3.org/2000/01/rdf-schema#label> "This is a test"\@en .\s+<http://localhost:5000/bar/baz/bing> <http://www.w3.org/2000/01/rdf-schema#label> "Testing with longer URI."\@en .|, "All content matches");
+
+  
+}
+
+diag 'PUT request';
+
+isa_ok($hb->put_response($uri2), 'Plack::Response', 'put_response returns');
+
+diag 'DELETE request';
+
+isa_ok($hb->delete_response($uri2), 'Plack::Response', 'delete_response returns');
 
 
 done_testing;
