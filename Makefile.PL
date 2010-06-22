@@ -12,8 +12,8 @@ test_requires 'Test::Exception';
 
 requires 'Moose'			=> 0;
 requires 'Log::Log4perl'		=> 0;
-requires 'RDF::Trine'			=> 0.124_01;
-requires 'RDF::Query'			=> 2.0;
+requires 'RDF::Trine'			=> 0.124;
+requires 'RDF::Query'			=> 2.9;
 requires 'Plack::Response'		=> 0;
 requires 'namespace::autoclean'         => 0;
 requires 'URI'                          => 0;

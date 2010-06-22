@@ -3,7 +3,7 @@ package RDF::Query::HTTPBindings::Role;
 use Moose::Role;
 use namespace::autoclean;
 
-use RDF::Query;
+use RDF::Query 2.9;
 use RDF::Trine::Model;
 use RDF::Trine::Iterator;
 use RDF::Trine::Serializer;
