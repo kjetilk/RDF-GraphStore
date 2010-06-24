@@ -70,7 +70,7 @@ TODO: {
   isa_ok($get_after_post, 'Plack::Response', 'get_response returns');
 
   is($get_after_post->code, 200, "Getting POSTed graph OK");
-  like($get_after_post->body, qr/"DAHUT"\@en/, 'Posted test string refound');
+  like($get_after_post->body, qr/DAHUT/, 'Posted test string refound');
   like($get_after_post->body, qr|<http://localhost:5000/foo> <http://xmlns.com/foaf/0.1/page> <http://en.wikipedia.org/wiki/Foo> ;\s+<http://www.w3.org/2000/01/rdf-schema#label> "This is a test"\@en .\s+<http://localhost:5000/bar/baz/bing> <http://www.w3.org/2000/01/rdf-schema#label> "Testing with longer URI."\@en .|, "All content matches");
 
   

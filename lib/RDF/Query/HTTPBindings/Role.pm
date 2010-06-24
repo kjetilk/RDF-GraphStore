@@ -119,11 +119,29 @@ What to do with a POST request. Returns a Plack::Response object.
 
 sub post_response {
   my $self = shift;
+  my $uri = _check_uri(shift);
   my $model = shift;
   my $res = Plack::Response->new;
-  unless ($model->isa('RDF::Trine::Model')) {
+  unless (defined($model) && $model->isa('RDF::Trine::Model')) {
+    # Simply return if no payload. TODO: Ask WG about this
     $res->code(204);
+    return $res;
   }
+  # TODO: How do we escape the payload for security?
+  my @triples;
+  my $iterator = $model->get_statements(undef, undef, undef);
+  while (my $statement = $iterator->next) {
+    push (@triples, $statement);
+  }
+
+  my $bgp = RDF::Query::Algebra::BasicGraphPattern->new(@triples);
+
+  my $sparql = "INSERT DATA { GRAPH <$uri> { " . $bgp->as_sparql  . "} }";
+#  die $sparql;
+  my $query = RDF::Query->new($sparql);
+  # TODO: How do I know if it succeeded?
+  
+  # TODO: Support the "201 + Location" scenario
   return $res;
 }
 
