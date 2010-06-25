@@ -3,12 +3,20 @@ package RDF::Query::HTTPBindings;
 use Moose;
 use namespace::autoclean;
 
+use RDF::Query;
+use RDF::Trine::Model;
+use RDF::Trine::Iterator;
+use RDF::Trine::Serializer;
+use RDF::Trine::Serializer::NTriples;
 
-with 'RDF::Query::HTTPBindings::Role';
+use Plack::Response;
+use URI;
+use URI::Escape;
+
 
 =head1 NAME
 
-RDF::Query::HTTPBindings - The great new RDF::Query::HTTPBindings!
+RDF::Query::HTTPBindings::Role - A Moose::Role to implement SPARQL 1.1 HTTP Bindings
 
 =head1 VERSION
 
@@ -19,18 +27,141 @@ Version 0.01
 our $VERSION = '0.01';
 
 
-=head1 SYNOPSIS
 
-Quick summary of what the module does.
+# =head1 SYNOPSIS
 
-Perhaps a little code snippet.
+=head1 DESCRIPTION
 
-    use RDF::Query::HTTPBindings;
+This module attempts to track the SPARQL 1.1. HTTP Bindings document,
+currently mostly as a discussion item.
 
-    my $foo = RDF::Query::HTTPBindings->new();
-    ...
+This first release contains the queries specified in the
+specification, but be warned that this is not the most efficient way
+to implement the specification, and is subject to change in later
+releases.
+
+The SPARQL 1.1 HTTP bindings document, which can be found at
+L<http://www.w3.org/TR/sparql11-http-rdf-update/> specifies how RDF
+graphs can be updated with using four HTTP verbs in a RESTful
+manner. This module is first and foremost intended as a discussion
+item implementation of the proposed protocol.
+
+
 
 =head1 METHODS
+
+=head2 model
+
+The model we're working on.
+
+=cut
+
+has 'model' => (is => 'rw', isa => 'RDF::Trine::Model');
+
+
+=head2 headers_in ( [ $headers ] )
+
+Returns the L<HTTP::Headers> object if it exists or sets it if a L<HTTP::Headers> object is given as parameter.
+
+=cut
+
+has headers_in => ( is => 'rw', isa => 'HTTP::Headers', builder => '_build_headers_in');
+
+sub _build_headers_in {
+    return HTTP::Headers->new() ;
+}
+
+=head2 get_response($uri | $uri_string)
+
+What to do with a GET request. Takes a URI object or a simple string
+as argument. Returns a Plack::Response object.
+
+=cut
+
+sub get_response {
+  my $self = shift;
+  my $uri = _check_uri(shift);
+  my $res = Plack::Response->new;
+  my $sparql = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <$uri> { ?s ?p ?o } }";
+  my $query = RDF::Query->new($sparql);
+  my $iterator = $query->execute($self->model);
+  # Need to serialize first to find the number of returned triples
+  my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
+  my $output = $serializer->serialize_iterator_to_string($iterator);
+  if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
+    $res->body($output);
+    $res->content_type($ct);
+    $res->content_length(bytes::length($output));
+    $res->status(200);
+  } else {
+    $res->status(404);
+    $res->content_type('text/plain');
+    $res->body('Graph not found');
+  }
+
+  return $res;
+}
+
+=head2 put_response
+
+What to do with a PUT request. Returns a Plack::Response object.
+
+=cut
+
+sub put_response {
+  my $self = shift;
+  my $res = Plack::Response->new;
+  return $res;
+}
+
+=head2 post_response
+
+What to do with a POST request. Returns a Plack::Response object.
+
+=cut
+
+sub post_response {
+  my $self = shift;
+  my $uri = _check_uri(shift);
+  my $model = shift;
+  my $res = Plack::Response->new;
+  unless (defined($model) && $model->isa('RDF::Trine::Model')) {
+    # Simply return if no payload. TODO: Ask WG about this
+    $res->code(204);
+    return $res;
+  }
+  my $serializer = RDF::Trine::Serializer::NTriples->new();
+  # TODO: How do we escape the payload for security?
+  my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . $serializer->serialize_model_to_string ( $model ) . '} }';
+  warn $sparql;
+  my $query = RDF::Query->new($sparql);
+  # TODO: How do I know if it succeeded?
+  
+  # TODO: Support the "201 + Location" scenario
+  return $res;
+}
+
+=head2 delete_response
+
+What to do with a DELETE request. Returns a Plack::Response object.
+
+=cut
+
+sub delete_response {
+  my $self = shift;
+  my $res = Plack::Response->new;
+  return $res;
+}
+
+
+sub _check_uri {
+  my $uri = shift;
+  confess 'No URI given' unless (defined($uri));
+  $uri = uri_escape($uri, ">");
+  return $uri if ($uri->isa('URI'));
+  return URI->new($uri);
+}
+
 
 
 =head1 AUTHOR
@@ -92,6 +223,6 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
 
-1; # End of RDF::Query::HTTPBindings
+__PACKAGE__->meta->make_immutable;
+1;
