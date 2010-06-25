@@ -7,6 +7,7 @@ use RDF::Query;
 use RDF::Trine::Model;
 use RDF::Trine::Iterator;
 use RDF::Trine::Serializer;
+use RDF::Trine::Serializer::NTriples;
 
 use Plack::Response;
 use URI;
@@ -129,17 +130,10 @@ sub post_response {
     $res->code(204);
     return $res;
   }
+  my $serializer = RDF::Trine::Serializer::NTriples->new();
   # TODO: How do we escape the payload for security?
-  my @triples;
-  my $iterator = $model->get_statements(undef, undef, undef);
-  while (my $statement = $iterator->next) {
-    push (@triples, $statement);
-  }
-
-  my $bgp = RDF::Query::Algebra::BasicGraphPattern->new(@triples);
-
-  my $sparql = '';"INSERT DATA { GRAPH <$uri> { " . $bgp->as_sparql  . "} }";
-#  die $sparql;
+  my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . $serializer->serialize_model_to_string ( $model ) . '} }';
+  warn $sparql;
   my $query = RDF::Query->new($sparql);
   # TODO: How do I know if it succeeded?
   
