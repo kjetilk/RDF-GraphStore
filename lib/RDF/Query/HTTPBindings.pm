@@ -3,7 +3,7 @@ package RDF::Query::HTTPBindings;
 use Moose;
 use namespace::autoclean;
 
-use RDF::Query;
+use RDF::Query 2.9;
 use RDF::Trine::Model;
 use RDF::Trine::Iterator;
 use RDF::Trine::Serializer;
@@ -133,10 +133,9 @@ sub post_response {
   my $serializer = RDF::Trine::Serializer::NTriples->new();
   # TODO: How do we escape the payload for security?
   my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . $serializer->serialize_model_to_string ( $model ) . '} }';
-  warn $sparql;
-  my $query = RDF::Query->new($sparql);
-  # TODO: How do I know if it succeeded?
-  
+  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  $query->execute;
+  $res->code(204);
   # TODO: Support the "201 + Location" scenario
   return $res;
 }
