@@ -14,7 +14,7 @@ my $uri_string = 'http://localhost:5000/foo';
 my $uri = URI->new($uri_string);
 ok($uri, "URI object OK");
 
-does_ok($hb, 'RDF::Query::HTTPBindings::Role');
+isa_ok($hb, 'RDF::Query::HTTPBindings');
 has_attribute_ok($hb, 'model');
 has_attribute_ok($hb, 'headers_in');
 

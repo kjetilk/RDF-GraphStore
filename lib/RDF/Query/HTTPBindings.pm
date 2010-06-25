@@ -1,6 +1,6 @@
-package RDF::Query::HTTPBindings::Role;
+package RDF::Query::HTTPBindings;
 
-use Moose::Role;
+use Moose;
 use namespace::autoclean;
 
 use RDF::Query;
@@ -27,15 +27,17 @@ our $VERSION = '0.01';
 
 
 
-=head1 SYNOPSIS
+# =head1 SYNOPSIS
+
+=head1 DESCRIPTION
 
 This module attempts to track the SPARQL 1.1. HTTP Bindings document,
 currently mostly as a discussion item.
 
-It implements a Moose::Role with a default implementation, which
-contains the specified queries.
-
-=head1 DESCRIPTION
+This first release contains the queries specified in the
+specification, but be warned that this is not the most efficient way
+to implement the specification, and is subject to change in later
+releases.
 
 The SPARQL 1.1 HTTP bindings document, which can be found at
 L<http://www.w3.org/TR/sparql11-http-rdf-update/> specifies how RDF
@@ -136,7 +138,7 @@ sub post_response {
 
   my $bgp = RDF::Query::Algebra::BasicGraphPattern->new(@triples);
 
-  my $sparql = "INSERT DATA { GRAPH <$uri> { " . $bgp->as_sparql  . "} }";
+  my $sparql = '';"INSERT DATA { GRAPH <$uri> { " . $bgp->as_sparql  . "} }";
 #  die $sparql;
   my $query = RDF::Query->new($sparql);
   # TODO: How do I know if it succeeded?
@@ -228,5 +230,5 @@ See http://dev.perl.org/licenses/ for more information.
 =cut
 
 
-
+__PACKAGE__->meta->make_immutable;
 1;
