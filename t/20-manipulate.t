@@ -73,11 +73,53 @@ diag 'POST request';
 
 diag 'PUT request';
 
-isa_ok($hb->put_response($uri2), 'Plack::Response', 'put_response returns');
+{
+  my $put = $hb->put_response($uri2);
+  isa_ok($put, 'Plack::Response', 'put_response returns');
+  is($put->code, 201, "PUTing nothing gives 201");
+ TODO: {
+    local $TODO = 'Ask WG if this should have a Location, since you cannot GET from it, or can you?';
+    is($put->location, $uri2, "Should return a Location to the same URI");
+  }
+}
+
+{
+  my $inputmodel = RDF::Trine::Model->temporary_model;
+  $inputmodel->add_statement(RDF::Trine::Statement->new(
+			      RDF::Trine::Node::Resource->new('/bar', $base_uri),
+			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
+			      RDF::Trine::Node::Literal->new('DAAAHUUUUT')));
+
+  my $put = $hb->put_response($uri2, $inputmodel);
+  isa_ok($put, 'Plack::Response', 'put_response returns');
+  is($put->code, 201, "PUTing model gives 201");
+  is($put->location, $uri2, "Should return a Location to the same URI");
+
+  my $get_after_put = $hb->get_response($uri2);
+  isa_ok($get_after_put, 'Plack::Response', 'get_response returns');
+
+  is($get_after_put->code, 200, "Getting PUT graph OK");
+  like($get_after_put->body, qr/DAAAHUUUUT/, 'PUT test string refound');
+
+}
 
 diag 'DELETE request';
 
-isa_ok($hb->delete_response($uri2), 'Plack::Response', 'delete_response returns');
+{
+  my $delete = $hb->delete_response($uri2);
+  isa_ok($delete, 'Plack::Response', 'delete_response returns');
+  is($delete->code, 204, "DELETEing a model gives 204");
 
+  my $get_after_delete = $hb->get_response($uri2);
+  isa_ok($get_after_delete, 'Plack::Response', 'get_response returns');
+  is($get_after_delete->code, 404, "Getting DELETEd graph returns 404");
+}
+
+TODO: {
+  local $TODO = 'Do I have to check if the URI exists and throw 404?';
+  my $delete = $hb->delete_response($uri2);
+  isa_ok($delete, 'Plack::Response', 'delete_response returns');
+  is($delete->code, 404, "DELETEing a model gives 204");
+}
 
 done_testing;
