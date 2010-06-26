@@ -115,13 +115,12 @@ sub put_response {
   my $uri = _check_uri(shift);
   my $new_model = shift;
   my $res = Plack::Response->new;
-  my $sparql = "DROP GRAPH <$uri>;\nCREATE GRAPH <$uri>;\n";
+  my $sparql = "CLEAR GRAPH <$uri>;\n"; # DROP and CREATE GRAPH are unimplemented
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
-    $sparql = "DROP GRAPH <$uri>;\nCREATE GRAPH <$uri>;\nINSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
+    $sparql .= "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
     $res->location($uri);
   }
-  warn $sparql;
   my $query = RDF::Query->new($sparql, { update => 1 });
   unless (defined($query)) {
     my $err = RDF::Query->error;
@@ -172,7 +171,7 @@ sub delete_response {
   my $self = shift;
   my $uri = _check_uri(shift);
   my $res = Plack::Response->new;
-  my $sparql = "DROP GRAPH <$uri>";
+  my $sparql = "CLEAR GRAPH <$uri>"; # DROP GRAPH is not implemented
   my $query = RDF::Query->new($sparql, { update => 1 });
   unless (defined($query)) {
     my $err = RDF::Query->error;
