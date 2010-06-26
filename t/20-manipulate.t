@@ -68,14 +68,8 @@ diag 'POST request';
   isa_ok($get_after_post, 'Plack::Response', 'get_response returns');
 
   is($get_after_post->code, 200, "Getting POSTed graph OK");
-
-TODO: {
-  local $TODO = "Implement POST";
   like($get_after_post->body, qr/DAHUT/, 'Posted test string refound');
-  like($get_after_post->body, qr|<http://localhost:5000/foo>\s+<http://xmlns.com/foaf/0.1/page>\s+<http://en.wikipedia.org/wiki/Foo>\s+;\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"This is a test"\@en\s+;\s+<http://xmlns.com/foaf/0.1/name>\s+"DAHUT"\s+.\s+<http://localhost:5000/bar/baz/bing>\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"Testing with longer URI."\@en\s+.|, "All content matches");
-
-  
-}
+  like($get_after_post->body, qr|<http://localhost:5000/foo>\s+<http://xmlns.com/foaf/0.1/name>\s+"DAHUT"\s+;\s+<http://xmlns.com/foaf/0.1/page>\s+<http://en.wikipedia.org/wiki/Foo>\s+;\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"This is a test"\@en\s+.\s+<http://localhost:5000/bar/baz/bing>\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"Testing with longer URI."\@en\s+.|, "All content matches");
 
 diag 'PUT request';
 

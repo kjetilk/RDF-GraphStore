@@ -123,18 +123,18 @@ What to do with a POST request. Returns a Plack::Response object.
 sub post_response {
   my $self = shift;
   my $uri = _check_uri(shift);
-  my $model = shift;
+  my $add_model = shift;
   my $res = Plack::Response->new;
-  unless (defined($model) && $model->isa('RDF::Trine::Model')) {
+  unless (defined($add_model) && $add_model->isa('RDF::Trine::Model')) {
     # Simply return if no payload. TODO: Ask WG about this
     $res->code(204);
     return $res;
   }
   my $serializer = RDF::Trine::Serializer::NTriples->new();
   # TODO: How do we escape the payload for security?
-  my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . $serializer->serialize_model_to_string ( $model ) . '} }';
+  my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . $serializer->serialize_model_to_string ( $add_model ) . '} }';
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
-  $query->execute;
+  $query->execute($self->model);
   $res->code(204);
   # TODO: Support the "201 + Location" scenario
   return $res;
