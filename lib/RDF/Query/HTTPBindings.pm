@@ -88,6 +88,8 @@ sub get_response {
   # Need to serialize first to find the number of returned triples
   my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
   my $output = $serializer->serialize_iterator_to_string($iterator);
+  # TODO: Ask the WG if this is an appropriate way to figure out if a
+  # request should return 404
   if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
     $res->body($output);
     $res->content_type($ct);
@@ -110,9 +112,22 @@ What to do with a PUT request. Returns a Plack::Response object.
 
 sub put_response {
   my $self = shift;
+  my $uri = _check_uri(shift);
+  my $new_model = shift;
   my $res = Plack::Response->new;
+  my $sparql = "DROP GRAPH <$uri>;\nCREATE GRAPH <$uri>;\n";
+  if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
+    # TODO: How do we escape the payload for security?
+    $sparql = "DROP GRAPH <$uri>;\nCREATE GRAPH <$uri>;\nINSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
+    $res->location($uri);
+  }
+  warn $sparql;
+  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
+  $res->code(201);
   return $res;
 }
+
 
 =head2 post_response
 
@@ -130,11 +145,10 @@ sub post_response {
     $res->code(204);
     return $res;
   }
-  my $serializer = RDF::Trine::Serializer::NTriples->new();
   # TODO: How do we escape the payload for security?
-  my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . $serializer->serialize_model_to_string ( $add_model ) . '} }';
+  my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload($add_model) . '} }';
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
-  $query->execute($self->model);
+  $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $res->code(204);
   # TODO: Support the "201 + Location" scenario
   return $res;
@@ -148,19 +162,32 @@ What to do with a DELETE request. Returns a Plack::Response object.
 
 sub delete_response {
   my $self = shift;
+  my $uri = _check_uri(shift);
   my $res = Plack::Response->new;
+  my $sparql = "DROP GRAPH <$uri>";
+  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
+  $res->code(204);
   return $res;
 }
+
 
 
 sub _check_uri {
   my $uri = shift;
   confess 'No URI given' unless (defined($uri));
+  # TODO: Is this sufficient input sanatizing?
   $uri = uri_escape($uri, ">");
   return $uri if ($uri->isa('URI'));
   return URI->new($uri);
 }
 
+sub _serialize_payload {
+  my $modify_model = shift;
+  confess 'No model given' unless (defined($modify_model) && $modify_model->isa('RDF::Trine::Model'));
+  my $serializer = RDF::Trine::Serializer::NTriples->new();
+  return $serializer->serialize_model_to_string ( $modify_model );
+}
 
 
 =head1 AUTHOR
