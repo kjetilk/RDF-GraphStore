@@ -122,7 +122,11 @@ sub put_response {
     $res->location($uri);
   }
   warn $sparql;
-  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  my $query = RDF::Query->new($sparql, { update => 1 });
+  unless (defined($query)) {
+    my $err = RDF::Query->error;
+    confess $err;
+  }
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $res->code(201);
   return $res;
@@ -147,7 +151,11 @@ sub post_response {
   }
   # TODO: How do we escape the payload for security?
   my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload($add_model) . '} }';
-  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  my $query = RDF::Query->new($sparql, { update => 1 });
+  unless (defined($query)) {
+    my $err = RDF::Query->error;
+    confess $err;
+  }
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $res->code(204);
   # TODO: Support the "201 + Location" scenario
@@ -165,7 +173,11 @@ sub delete_response {
   my $uri = _check_uri(shift);
   my $res = Plack::Response->new;
   my $sparql = "DROP GRAPH <$uri>";
-  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  my $query = RDF::Query->new($sparql, { update => 1 });
+  unless (defined($query)) {
+    my $err = RDF::Query->error;
+    confess $err;
+  }
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $res->code(204);
   return $res;
