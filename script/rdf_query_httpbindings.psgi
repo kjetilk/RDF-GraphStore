@@ -28,7 +28,7 @@ BEGIN {
 
     sub (GET) {
       my $self = shift;
-      my $req = Plack::Request->new(pop);
+      my $req = Plack::Request->new($_[PSGI_ENV]);
       $hb->headers_in($req->headers);
       return $hb->get_response($req->uri)->finalize;
     },
