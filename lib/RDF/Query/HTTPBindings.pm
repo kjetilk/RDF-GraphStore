@@ -115,14 +115,13 @@ sub put_response {
   my $uri = _check_uri(shift);
   my $new_model = shift;
   my $res = Plack::Response->new;
-  my $sparql = "DROP GRAPH <$uri>;\nCREATE GRAPH <$uri>;\n";
+  my $sparql = "CLEAR GRAPH <$uri>;\n"; # DROP and CREATE GRAPH are unimplemented
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
-    $sparql = "DROP GRAPH <$uri>;\nCREATE GRAPH <$uri>;\nINSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
+    $sparql .= "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
     $res->location($uri);
   }
-  warn $sparql;
-  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $res->code(201);
   return $res;
@@ -147,7 +146,7 @@ sub post_response {
   }
   # TODO: How do we escape the payload for security?
   my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload($add_model) . '} }';
-  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $res->code(204);
   # TODO: Support the "201 + Location" scenario
@@ -164,8 +163,8 @@ sub delete_response {
   my $self = shift;
   my $uri = _check_uri(shift);
   my $res = Plack::Response->new;
-  my $sparql = "DROP GRAPH <$uri>";
-  my $query = RDF::Query->new($sparql, { update => 1 }) || confess RDF::Query->error;
+  my $sparql = "CLEAR GRAPH <$uri>"; # DROP GRAPH is not implemented
+  my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $res->code(204);
   return $res;
