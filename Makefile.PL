@@ -1,8 +1,8 @@
 use inc::Module::Install;
 
 name     'RDF-Query-HTTPBindings';
-all_from 'lib/RDF/Query/HTTPBindings/Role.pm';
-readme_from 'lib/RDF/Query/HTTPBindings/Role.pm';
+all_from 'lib/RDF/Query/HTTPBindings.pm';
+readme_from 'lib/RDF/Query/HTTPBindings.pm';
 author   q{Kjetil Kjernsmo <kjetilk@cpan.org>};
 license  'perl';
 
