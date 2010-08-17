@@ -1,8 +1,8 @@
 use inc::Module::Install;
 
 name     'RDF-Query-HTTPBindings';
-all_from 'lib/RDF/Query/HTTPBindings/Role.pm';
-readme_from 'lib/RDF/Query/HTTPBindings/Role.pm';
+all_from 'lib/RDF/Query/HTTPBindings.pm';
+readme_from 'lib/RDF/Query/HTTPBindings.pm';
 author   q{Kjetil Kjernsmo <kjetilk@cpan.org>};
 license  'perl';
 
@@ -17,6 +17,8 @@ requires 'RDF::Query'			=> 2.9;
 requires 'Plack::Response'		=> 0;
 requires 'namespace::autoclean'         => 0;
 requires 'URI'                          => 0;
+
+recommends 'Web::Simple'                => 0.003; # If you plan to run the server
 
 
 auto_set_repository;

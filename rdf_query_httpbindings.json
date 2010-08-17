@@ -1,0 +1,10 @@
+{
+	"store" : "Memory",
+	"sources" : [
+	             {
+		      "syntax" : "trig",
+		      "file" : "t/data/basic.trig",
+		      "base_uri" : "http://localhost:5000/"
+ 		     }	     
+		    ]
+}
