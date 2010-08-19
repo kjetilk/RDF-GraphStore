@@ -20,6 +20,7 @@ requires 'URI'                          => 0;
 
 recommends 'Web::Simple'                => 0.003; # If you plan to run the server
 
+author_tests('xt');
 
 auto_set_repository;
 auto_set_bugtracker;
