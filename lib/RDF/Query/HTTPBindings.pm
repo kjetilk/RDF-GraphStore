@@ -3,6 +3,7 @@ package RDF::Query::HTTPBindings;
 use Moose;
 use namespace::autoclean;
 
+use Encode;
 use RDF::Query 2.9;
 use RDF::Trine::Model;
 use RDF::Trine::Iterator;
@@ -91,16 +92,16 @@ sub get_response {
   # TODO: Ask the WG if this is an appropriate way to figure out if a
   # request should return 404
   if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
-    $res->body($output);
+    my $body = encode_utf8($output);
+    $res->body($body);
     $res->content_type($ct);
-    $res->content_length(bytes::length($output));
+    $res->content_length(bytes::length($body));
     $res->status(200);
   } else {
     $res->status(404);
     $res->content_type('text/plain');
     $res->body('Graph not found');
   }
-
   return $res;
 }
 
@@ -115,7 +116,7 @@ sub put_response {
   my $uri = _check_uri(shift);
   my $new_model = shift;
   my $res = Plack::Response->new;
-  my $sparql = "CLEAR GRAPH <$uri>;\n"; # DROP and CREATE GRAPH are unimplemented
+  my $sparql = "CLEAR GRAPH <$uri>;\n";
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
     $sparql .= "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
@@ -163,7 +164,7 @@ sub delete_response {
   my $self = shift;
   my $uri = _check_uri(shift);
   my $res = Plack::Response->new;
-  my $sparql = "CLEAR GRAPH <$uri>"; # DROP GRAPH is not implemented
+  my $sparql = "DROP GRAPH <$uri>";
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $res->code(204);
@@ -198,9 +199,6 @@ Kjetil Kjernsmo, C<< <kjetilk at cpan.org> >>
 Please report any bugs or feature requests to C<bug-rdf-query-httpbindings at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=RDF-Query-HTTPBindings>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
-
-
-
 
 =head1 SUPPORT
 
