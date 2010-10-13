@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use LWP::UserAgent;
+use HTTP::Request::Common qw(DELETE);
+
+our $VERSION	= '0.01';
+my $from		= shift;
+
+my $ok	= check($from);
+unless ($ok) {
+	print <<"END";
+Usage:
+	$0 http://remote/graph
+
+END
+	exit 1;
+}
+
+my $ua	= LWP::UserAgent->new();
+$ua->agent("rdfcp/$VERSION ");
+$ua->from('dev@lists.perlrdf.org');
+remove($ua, $from);
+
+sub check {
+	my $remote	= 0;
+	foreach my $spec (@_) {
+		if (is_remote($spec)) {
+			$remote++;
+		}
+	}
+	return ($remote == 1);
+}
+
+sub is_remote {
+	no warnings 'uninitialized';
+	my $spec	= shift;
+	return ($spec =~ m<^https?://>);
+}
+
+sub remove {
+	my $ua		= shift;
+	my $from	= shift;
+	
+	my $req		= HTTP::Request::Common::DELETE( $from );
+	my $resp	= $ua->request( $req );
+	if ($resp->is_success) {
+	} else {
+		warn $resp->status_line . "\n";
+		exit 1;
+	}
+}
