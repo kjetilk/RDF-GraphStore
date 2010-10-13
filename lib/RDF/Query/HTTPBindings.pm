@@ -17,7 +17,7 @@ use URI::Escape;
 
 =head1 NAME
 
-RDF::Query::HTTPBindings::Role - A Moose::Role to implement SPARQL 1.1 HTTP Bindings
+RDF::Query::HTTPBindings - SPARQL 1.1 HTTP Bindings
 
 =head1 VERSION
 
