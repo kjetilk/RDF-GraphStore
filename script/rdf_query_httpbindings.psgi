@@ -60,6 +60,25 @@ BEGIN {
       return $hb->put_response($req->uri, $putmodel)->finalize;
     },
 
+    sub (POST) {
+      my $self = shift;
+      my $req = Plack::Request->new($_[PSGI_ENV]);
+      my $io = $req->input;
+      my $putmodel = RDF::Trine::Model->temporary_model;
+      my $parser = RDF::Trine::Parser->new('rdfxml');
+      my $content	= '';
+      my $read		= 0;
+      while (1) {
+      	my $r = $io->read($content, 1024, $read);
+      	$read += $r;
+      	last unless $r;
+      }
+      $parser->parse_into_model( $req->base, $content, $putmodel );
+      $hb->headers_in($req->headers);
+      
+      return $hb->post_response($req->uri, $putmodel)->finalize;
+    },
+
     sub () {
       [ 405, [ 'Content-type', 'text/plain' ], [ 'Method not allowed' ] ]
     }
