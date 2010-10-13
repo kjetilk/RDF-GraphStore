@@ -41,6 +41,13 @@ sub post {
 	
 	my $rdf		= do { local($/) = undef; open(my $fh, '<', $from) or die $!; <$fh> };
 	my $req		= POST( $to, Content => $rdf );
+	my $parser	= RDF::Trine::Parser->guess_parser_by_filename($from);
+	if ($parser) {
+		my $type	= $parser->media_type;
+		if ($type) {
+			$req->header( 'Accept' => $type );
+		}
+	}
 	my $resp	= $ua->request( $req );
 	if ($resp->is_success) {
 	} else {

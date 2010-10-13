@@ -2,7 +2,8 @@
 use strict;
 use warnings;
 use LWP::UserAgent;
-use HTTP::Request::Common qw(PUT);
+use RDF::Trine::Parser;
+use HTTP::Request::Common qw(GET PUT);
 
 our $VERSION	= '0.01';
 my $from		= shift;
@@ -51,7 +52,15 @@ sub get {
 	my $ua		= shift;
 	my $from	= shift;
 	my $to		= shift;
-	my $resp	= $ua->get($from);
+	my $req		= GET($from);
+	my $parser	= RDF::Trine::Parser->guess_parser_by_filename($to);
+	if ($parser) {
+		my $type	= $parser->media_type;
+		if ($type) {
+			$req->header( 'Accept' => $type );
+		}
+	}
+	my $resp	= $ua->request($req);
 	if ($resp->is_success) {
 		open(my $fh, '>', $to) or die $!;
 		print {$fh} $resp->decoded_content;
@@ -69,6 +78,13 @@ sub put {
 	
 	my $rdf		= do { local($/) = undef; open(my $fh, '<', $from) or die $!; <$fh> };
 	my $req		= PUT( $to, Content => $rdf );
+	my $parser	= RDF::Trine::Parser->guess_parser_by_filename($from);
+	if ($parser) {
+		my $type	= $parser->media_type;
+		if ($type) {
+			$req->header( 'Content-Type' => $type );
+		}
+	}
 	my $resp	= $ua->request( $req );
 	if ($resp->is_success) {
 	} else {
