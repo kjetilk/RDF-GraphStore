@@ -46,7 +46,14 @@ BEGIN {
       my $req = Plack::Request->new($_[PSGI_ENV]);
       my $io = $req->input;
       my $putmodel = RDF::Trine::Model->temporary_model;
-      my $parser = RDF::Trine::Parser->new('rdfxml');
+      my $parser;
+      if (my $type = $req->header( 'Content-Type' )) {
+        my $pclass = RDF::Trine::Parser->parsr_by_media_type( $type );
+        $parser = $pclass->new();
+      }
+      unless ($parser) {
+        $parser = RDF::Trine::Parser->new('rdfxml');
+      }
       my $content	= '';
       my $read		= 0;
       while (1) {
@@ -65,7 +72,14 @@ BEGIN {
       my $req = Plack::Request->new($_[PSGI_ENV]);
       my $io = $req->input;
       my $putmodel = RDF::Trine::Model->temporary_model;
-      my $parser = RDF::Trine::Parser->new('rdfxml');
+      my $parser;
+      if (my $type = $req->header( 'Content-Type' )) {
+        my $pclass = RDF::Trine::Parser->parsr_by_media_type( $type );
+        $parser = $pclass->new();
+      }
+      unless ($parser) {
+        $parser = RDF::Trine::Parser->new('rdfxml');
+      }
       my $content	= '';
       my $read		= 0;
       while (1) {
