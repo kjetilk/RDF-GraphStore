@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use LWP::UserAgent;
+use HTTP::Request::Common qw(POST);
+
+our $VERSION	= '0.01';
+my $from		= shift;
+my $to			= shift;
+
+my $ok	= check($from, $to);
+unless ($ok) {
+	print <<"END";
+Usage:
+	$0 local.rdf http://remote/graph
+
+END
+	exit 1;
+}
+
+my $ua	= LWP::UserAgent->new();
+$ua->agent("rdfcp/$VERSION ");
+$ua->from('dev@lists.perlrdf.org');
+post($ua, $from, $to);
+
+sub check {
+	return 0 if is_remote(shift);
+	return 0 unless is_remote(shift);
+}
+
+sub is_remote {
+	no warnings 'uninitialized';
+	my $spec	= shift;
+	return ($spec =~ m<^https?://>);
+}
+
+sub post {
+	my $ua		= shift;
+	my $from	= shift;
+	my $to		= shift;
+	
+	my $rdf		= do { local($/) = undef; open(my $fh, '<', $from) or die $!; <$fh> };
+	my $req		= POST( $to, Content => $rdf );
+	my $parser	= RDF::Trine::Parser->guess_parser_by_filename($from);
+	if ($parser) {
+		my $type	= $parser->media_type;
+		if ($type) {
+			$req->header( 'Accept' => $type );
+		}
+	}
+	my $resp	= $ua->request( $req );
+	if ($resp->is_success) {
+	} else {
+		warn $resp->status_line . "\n";
+		exit 1;
+	}
+}
