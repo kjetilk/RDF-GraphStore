@@ -29,13 +29,9 @@ has_attribute_ok($hb, 'headers_in');
 
 {
   dies_ok{$hb->get_response}, 'get_response dies';
-TODO: {
-  local $TODO = "Needs to die";
-
   dies_ok{$hb->put_response}, 'put_response dies';
   dies_ok{$hb->post_response}, 'post_response dies';
   dies_ok{$hb->delete_response}, 'delete_response dies';
-}
 }
 
 {
