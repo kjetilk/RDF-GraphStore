@@ -3,7 +3,6 @@ package RDF::Query::HTTPBindings;
 use Moose;
 use namespace::autoclean;
 
-use Encode;
 use RDF::Query 2.9;
 use RDF::Trine::Model;
 use RDF::Trine::Iterator;
@@ -13,6 +12,8 @@ use RDF::Trine::Serializer::NTriples;
 use Plack::Response;
 use URI;
 use URI::Escape;
+use Encode;
+use Digest::MD5 qw(md5_hex);
 
 
 =head1 NAME
@@ -72,6 +73,47 @@ sub _build_headers_in {
     return HTTP::Headers->new() ;
 }
 
+=head2 head_response($uri | $uri_string)
+
+What to do with a HEAD request. Takes a URI object or a simple string
+as argument. Returns a Plack::Response object.
+
+=cut
+
+sub head_response {
+  my $self = shift;
+  my $uri = _check_uri(shift);
+  my $res = Plack::Response->new;
+  
+  my $etag = $self->_etag($uri);
+  if (my $code = $self->_check_etag($uri, $etag)) {
+  	$res->status($code);
+  	return $res;
+  }
+  
+  my $sparql = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <$uri> { ?s ?p ?o } }";
+  my $query = RDF::Query->new($sparql);
+  my $iterator = $query->execute($self->model);
+  # Need to serialize first to find the number of returned triples
+  my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
+  my $output = $serializer->serialize_iterator_to_string($iterator);
+  # TODO: Ask the WG if this is an appropriate way to figure out if a
+  # request should return 404
+  if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
+    my $body = encode_utf8($output);
+    $res->content_type($ct);
+    $res->content_length(bytes::length($body));
+    $res->status(200);
+    if (defined($etag)) {
+      $res->headers->header( ETag => $etag );
+    }
+  } else {
+    $res->status(404);
+    $res->content_type('text/plain');
+  }
+  return $res;
+}
+
 =head2 get_response($uri | $uri_string)
 
 What to do with a GET request. Takes a URI object or a simple string
@@ -83,6 +125,13 @@ sub get_response {
   my $self = shift;
   my $uri = _check_uri(shift);
   my $res = Plack::Response->new;
+  
+  my $etag = $self->_etag($uri);
+  if (my $code = $self->_check_etag($uri, $etag)) {
+  	$res->status($code);
+  	return $res;
+  }
+  
   my $sparql = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <$uri> { ?s ?p ?o } }";
   my $query = RDF::Query->new($sparql);
   my $iterator = $query->execute($self->model);
@@ -97,6 +146,9 @@ sub get_response {
     $res->content_type($ct);
     $res->content_length(bytes::length($body));
     $res->status(200);
+    if (defined($etag)) {
+      $res->headers->header( ETag => $etag );
+    }
   } else {
     $res->status(404);
     $res->content_type('text/plain');
@@ -189,6 +241,27 @@ sub _serialize_payload {
   return $serializer->serialize_model_to_string ( $modify_model );
 }
 
+sub _etag {
+  my $self = shift;
+  my $graph = shift;
+  my $model = $self->model;
+  my $match = $self->headers_in->header('if-none-match') || '';
+  my $type = $self->headers_in->header('Accept');
+  my $etag = md5_hex( join('#', $model->etag, $type, $graph) );
+  return $etag;
+}
+
+sub _check_etag {
+  my $self = shift;
+  my $graph = shift;
+  my $etag = shift;
+  my $match = $self->headers_in->header('if-none-match') || '';
+  if (length($match)) {
+    if (defined($etag) and ($etag eq $match)) {
+      return 304;
+    }
+  }
+}
 
 =head1 AUTHOR
 
