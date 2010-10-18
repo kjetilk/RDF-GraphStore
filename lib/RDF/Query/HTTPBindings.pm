@@ -4,6 +4,7 @@ use Moose;
 use namespace::autoclean;
 
 use RDF::Query 2.9;
+use RDF::Trine 0.130;
 use RDF::Trine::Model;
 use RDF::Trine::Iterator;
 use RDF::Trine::Serializer;
