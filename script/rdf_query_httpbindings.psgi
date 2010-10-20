@@ -75,7 +75,7 @@ BEGIN {
         my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
         $parser = $pclass->new();
       }
-      unless ($parser) {
+      unless ($parser) { # This is underspecified
         $parser = RDF::Trine::Parser->new('rdfxml');
       }
       my $content	= '';
@@ -107,7 +107,7 @@ BEGIN {
         my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
         $parser = $pclass->new();
       }
-      unless ($parser) {
+      unless ($parser) { # This is underspecified
         $parser = RDF::Trine::Parser->new('rdfxml');
       }
       my $content	= '';
