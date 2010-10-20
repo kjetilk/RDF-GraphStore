@@ -2,7 +2,6 @@
 use strict;
 use Test::More  tests => 6;
 use Test::Moose;
-use Test::Exception;
 use URI;
 use HTTP::Headers;
 use FindBin qw($Bin);
