@@ -245,10 +245,9 @@ sub _serialize_payload {
 sub _etag {
   my $self = shift;
   my $graph = shift;
-  my $model = $self->model;
   my $match = $self->headers_in->header('if-none-match') || '';
   my $type = $self->headers_in->header('Accept');
-  my $etag = md5_hex( join('#', $model->etag, $type, $graph) );
+  my $etag = md5_hex( join('#', $self->model->etag, $type, $graph) );
   return $etag;
 }
 

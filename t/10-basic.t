@@ -8,7 +8,7 @@ BEGIN {
   use_ok 'RDF::Query::HTTPBindings';
 }
 
-my $hb = RDF::Query::HTTPBindings->new();
+my $hb = RDF::Query::HTTPBindings->new(model => RDF::Trine::Model->temporary_model);
 
 my $uri_string = 'http://localhost:5000/foo';
 my $uri = URI->new($uri_string);
