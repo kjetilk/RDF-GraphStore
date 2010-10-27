@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More;#  tests => 17;
+use Test::More  tests => 42;
 use Test::Moose;
 use Test::Exception;
 use URI;
@@ -29,6 +29,21 @@ ok($uri1, "URI 1 object OK");
 
 my $uri2 = URI->new('http://localhost:5000/graphs/g3');
 ok($uri2, "URI 2 object OK");
+
+diag "HEAD request";
+my $head = $hb->head_response($uri1);
+isa_ok($head, 'Plack::Response', 'head_response returns');
+
+is($head->code, 200, "Head request for a graph OK");
+ok(!$head->body, 'No body found');
+
+is($head->content_type, 'text/turtle', 'Correct content type');
+
+my $head2 = $hb->head_response($uri2);
+isa_ok($head2, 'Plack::Response', 'head_response returns');
+
+is($head2->code, 404, "Head request for a non-existent graph returns 404");
+
 
 diag "GET request";
 my $get = $hb->get_response($uri1);
