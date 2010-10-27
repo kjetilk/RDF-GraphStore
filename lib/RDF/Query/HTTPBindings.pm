@@ -246,7 +246,7 @@ sub _etag {
   my $self = shift;
   my $graph = shift;
   my $match = $self->headers_in->header('if-none-match') || '';
-  my $type = $self->headers_in->header('Accept');
+  my $type = $self->headers_in->header('Accept') || '';
   my $etag = md5_hex( join('#', $self->model->etag, $type, $graph) );
   return $etag;
 }
