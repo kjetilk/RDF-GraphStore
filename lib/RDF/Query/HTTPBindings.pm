@@ -150,7 +150,7 @@ sub put_response {
   my $uri = _check_uri(shift);
   my $new_model = shift;
   my $res = Plack::Response->new;
-  my $sparql = "CLEAR GRAPH <$uri>;\n";
+  my $sparql = "DROP SILENT GRAPH <$uri>;\n";
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
     $sparql .= "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
