@@ -116,10 +116,10 @@ diag 'DELETE request';
 }
 
 TODO: {
-  local $TODO = 'Do I have to check if the URI exists and throw 404?';
+  local $TODO = 'I have to check if the URI exists and throw 404';
   my $delete = $hb->delete_response($uri2);
   isa_ok($delete, 'Plack::Response', 'delete_response returns');
-  is($delete->code, 404, "DELETEing a model gives 204");
+  is($delete->code, 404, "DELETEing a model gives 404");
 }
 
 done_testing;
