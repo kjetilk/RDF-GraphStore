@@ -82,38 +82,9 @@ as argument. Returns a Plack::Response object.
 =cut
 
 sub head_response {
-  my $self = shift;
-  my $uri = _check_uri(shift);
-  my $res = Plack::Response->new;
-  
-  my $etag = $self->_etag($uri);
-  if (my $code = $self->_check_etag($uri, $etag)) {
-  	$res->status($code);
-  	return $res;
-  }
-  
-  my $sparql = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <$uri> { ?s ?p ?o } }";
-  my $query = RDF::Query->new($sparql);
-  my $iterator = $query->execute($self->model);
-  # Need to serialize first to find the number of returned triples
-  my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
-  my $output = $serializer->serialize_iterator_to_string($iterator);
-  # TODO: Ask the WG if this is an appropriate way to figure out if a
-  # request should return 404
-  if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
-    my $body = encode_utf8($output);
-    $res->content_type($ct);
-    $res->content_length(bytes::length($body));
-    $res->status(200);
-    if (defined($etag)) {
-      $res->headers->header( ETag => $etag );
-    }
-  } else {
-    $res->status(404);
-    $res->content_type('text/plain');
-  }
-  return $res;
+  return $_[0]->_head_and_get_response($_[1], 0);
 }
+
 
 =head2 get_response($uri | $uri_string)
 
@@ -123,8 +94,14 @@ as argument. Returns a Plack::Response object.
 =cut
 
 sub get_response {
+  return $_[0]->_head_and_get_response($_[1], 1);
+}
+
+# Do the actual work, with an additional boolean that should be true if we do a GET
+sub _head_and_get_response {
   my $self = shift;
   my $uri = _check_uri(shift);
+  my $get = shift;
   my $res = Plack::Response->new;
   
   my $etag = $self->_etag($uri);
@@ -143,7 +120,9 @@ sub get_response {
   # request should return 404
   if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
     my $body = encode_utf8($output);
-    $res->body($body);
+    if ($get) {
+      $res->body($body);
+    }
     $res->content_type($ct);
     $res->content_length(bytes::length($body));
     $res->status(200);
@@ -153,7 +132,9 @@ sub get_response {
   } else {
     $res->status(404);
     $res->content_type('text/plain');
-    $res->body('Graph not found');
+    if ($get) {
+      $res->body('Graph not found');
+    }
   }
   return $res;
 }
