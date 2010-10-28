@@ -116,8 +116,7 @@ sub _head_and_get_response {
   # Need to serialize first to find the number of returned triples
   my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
   my $output = $serializer->serialize_iterator_to_string($iterator);
-  # TODO: Ask the WG if this is an appropriate way to figure out if a
-  # request should return 404
+
   if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
     my $body = encode_utf8($output);
     if ($get) {
