@@ -82,7 +82,7 @@ as argument. Returns a Plack::Response object.
 =cut
 
 sub head_response {
-  return $_[0]->_head_and_get_response($_[1], 0);
+  return _head_and_get_response(@_, 0);
 }
 
 
@@ -94,7 +94,7 @@ as argument. Returns a Plack::Response object.
 =cut
 
 sub get_response {
-  return $_[0]->_head_and_get_response($_[1], 1);
+  return _head_and_get_response(@_, 1);
 }
 
 # Do the actual work, with an additional boolean that should be true if we do a GET
