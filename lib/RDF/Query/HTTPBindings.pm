@@ -253,6 +253,19 @@ Please report any bugs or feature requests to C<bug-rdf-query-httpbindings at rt
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=RDF-Query-HTTPBindings>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
+=head1 FUTURE DIRECTIONS
+
+The current implementation's main goal is to be close to the
+specification, and thus it contains the query strings as given in the
+specification. However, this is not the best way to implement this, as
+a pure L<RDF::Trine> implementation is possible.
+
+Once the specification is finalized, the plan is to create a
+L<Moose::Role> with a default implementation that does this the most
+efficient way, and leave the present implementation as an alternative
+implementation for demonstration purposes.
+
+
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
