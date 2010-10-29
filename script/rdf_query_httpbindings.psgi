@@ -68,65 +68,29 @@ BEGIN {
     sub (PUT) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      my $io = $req->input;
-      my $putmodel = RDF::Trine::Model->temporary_model;
-      my $parser;
-      if (my $type = $req->header( 'Content-Type' )) {
-        my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
-        $parser = $pclass->new();
-      }
-      unless ($parser) { # This is underspecified
-        $parser = RDF::Trine::Parser->new('rdfxml');
-      }
-      my $content	= '';
-      my $read		= 0;
-      while (1) {
-      	my $r = $io->read($content, 1024, $read);
-      	$read += $r;
-      	last unless $r;
-      }
+      $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
         $graph = $g;
       } else {
         $graph = $req->uri;
       }
-      $parser->parse_into_model( $graph, $content, $putmodel );
-      $hb->headers_in($req->headers);
-      
-      return $hb->put_response($graph, $putmodel)->finalize;
+      $hb->graph_uri($graph);
+      return $hb->put_response($hb->payload_model($req))->finalize;
     },
 
     sub (POST) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      my $io = $req->input;
-      my $putmodel = RDF::Trine::Model->temporary_model;
-      my $parser;
-      if (my $type = $req->header( 'Content-Type' )) {
-        my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
-        $parser = $pclass->new();
-      }
-      unless ($parser) { # This is underspecified
-        $parser = RDF::Trine::Parser->new('rdfxml');
-      }
-      my $content	= '';
-      my $read		= 0;
-      while (1) {
-      	my $r = $io->read($content, 1024, $read);
-      	$read += $r;
-      	last unless $r;
-      }
+      $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
         $graph = $g;
       } else {
         $graph = $req->uri;
       }
-      $parser->parse_into_model( $graph, $content, $putmodel );
-      $hb->headers_in($req->headers);
-      
-      return $hb->post_response($graph, $putmodel)->finalize;
+      $hb->graph_uri($graph);
+      return $hb->post_response($hb->payload_model($req))->finalize;
     },
 
     sub () {
