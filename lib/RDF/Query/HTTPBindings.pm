@@ -74,7 +74,29 @@ sub _build_headers_in {
     return HTTP::Headers->new() ;
 }
 
-=head2 head_response($uri | $uri_string)
+
+=head2 graph_uri ($uri)
+
+Returns the L<HTTP::Headers> object if it exists or sets it if a L<HTTP::Headers> object is given as parameter.
+
+=head2 has_graph_uri
+
+Returns true if the graph_uri has been set.
+
+=cut
+
+has graph_uri => ( is => 'rw', isa => 'URI',
+		   trigger => \&_set_graph_uri, predicate => 'has_graph_uri');
+
+sub _set_graph_uri {
+  my $uri = shift;
+  confess 'No URI given' unless (defined($uri));
+  # TODO: Is this sufficient input sanatizing?
+  $uri = uri_escape($uri, ">");
+  return $uri;
+}
+
+=head2 head_response()
 
 What to do with a HEAD request. Takes a URI object or a simple string
 as argument. Returns a Plack::Response object.
@@ -86,7 +108,7 @@ sub head_response {
 }
 
 
-=head2 get_response($uri | $uri_string)
+=head2 get_response
 
 What to do with a GET request. Takes a URI object or a simple string
 as argument. Returns a Plack::Response object.
@@ -100,7 +122,8 @@ sub get_response {
 # Do the actual work, with an additional boolean that should be true if we do a GET
 sub _head_and_get_response {
   my $self = shift;
-  my $uri = _check_uri(shift);
+  confess('No graph URI given') unless $self->has_graph_uri;
+  my $uri = $self->graph_uri;
   my $get = shift;
   my $res = Plack::Response->new;
   
@@ -146,7 +169,8 @@ What to do with a PUT request. Returns a Plack::Response object.
 
 sub put_response {
   my $self = shift;
-  my $uri = _check_uri(shift);
+  confess('No graph URI given') unless $self->has_graph_uri;
+  my $uri = $self->graph_uri;
   my $new_model = shift;
   my $res = Plack::Response->new;
   my $sparql = "DROP SILENT GRAPH <$uri>;\n";
@@ -170,7 +194,8 @@ What to do with a POST request. Returns a Plack::Response object.
 
 sub post_response {
   my $self = shift;
-  my $uri = _check_uri(shift);
+  confess('No graph URI given') unless $self->has_graph_uri;
+  my $uri = $self->graph_uri;
   my $add_model = shift;
   my $res = Plack::Response->new;
   unless (defined($add_model) && $add_model->isa('RDF::Trine::Model')) {
@@ -195,7 +220,8 @@ What to do with a DELETE request. Returns a Plack::Response object.
 
 sub delete_response {
   my $self = shift;
-  my $uri = _check_uri(shift);
+  confess('No graph URI given') unless $self->has_graph_uri;
+  my $uri = $self->graph_uri;
   my $res = Plack::Response->new;
   my $sparql = "DROP GRAPH <$uri>";
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
@@ -205,14 +231,36 @@ sub delete_response {
 }
 
 
+=head2 payload_model ( $request )
 
-sub _check_uri {
-  my $uri = shift;
-  confess 'No URI given' unless (defined($uri));
-  # TODO: Is this sufficient input sanatizing?
-  $uri = uri_escape($uri, ">");
-  return $uri if ($uri->isa('URI'));
-  return URI->new($uri);
+Return a L<RDF::Trine::Model> with the triples from the payload.
+
+=cut
+
+sub payload_model {
+  my ($self, $req) = @_;
+
+  my $io = $req->input;
+  my $model = RDF::Trine::Model->temporary_model;
+  my $parser;
+  if (my $type = $req->header( 'Content-Type' )) {
+    my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
+    $parser = $pclass->new();
+  }
+  unless ($parser) { # This is underspecified
+    $parser = RDF::Trine::Parser->new('rdfxml');
+  }
+  my $content	= '';
+  my $read		= 0;
+  while (1) {
+    my $r = $io->read($content, 1024, $read);
+    $read += $r;
+    last unless $r;
+  }
+
+  $parser->parse_into_model( $self->graph_uri, $content, $model );
+
+  return $model;
 }
 
 sub _serialize_payload {
