@@ -245,7 +245,9 @@ sub payload_model {
   my $parser;
   if (my $type = $req->header( 'Content-Type' )) {
     my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
-    $parser = $pclass->new();
+    if ($pclass) {
+      $parser = $pclass->new();
+    }
   }
   unless ($parser) { # This is underspecified
     $parser = RDF::Trine::Parser->new('rdfxml');
