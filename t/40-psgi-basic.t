@@ -3,14 +3,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;
+use Test::More tests => 38;
 use Test::WWW::Mechanize::PSGI;
 
 use RDF::Trine::Serializer::RDFXML;
+use RDF::Trine::Serializer::Turtle;
 
-#use Plack::Request;
-#use RDF::Trine::Parser;
-#use RDF::LinkedData;
 BEGIN { require 'script/rdf_query_httpbindings.psgi'; }
 
 my $serializer = RDF::Trine::Serializer::RDFXML->new;
@@ -32,8 +30,6 @@ $mech->head($uri1);
 is($mech->status, 200, "Returns 200");
 $mech->content_is('', 'No content');
 
-#is($head->content_type, 'text/turtle', 'Correct content type');
-
 $mech->head($uri2);
 is($mech->status, 404, "Returns 404");
 $mech->content_is('', 'No content');
@@ -45,7 +41,7 @@ $mech->get($uri1);
 is($mech->status, 200, "Returns 200");
 $mech->content_contains('This is a test', 'Test string found.');
 
-#is($get->content_type, 'text/turtle', 'Correct content type');
+is($mech->content_type, 'text/turtle', 'Correct content type');
 
 $mech->get($uri2);
 is($mech->status, 404, "Returns 404");
@@ -56,6 +52,12 @@ $mech->post($uri1);
 is($mech->status, 204, "POSTing no model gives 204");
 $mech->content_is('', 'No content');
 
+TODO: {
+  local $TODO = "Need 400 error messages";
+  $mech->post($uri1, Content => 'Errrr');
+  is($mech->status, 400, "POSTing rubbish gives 400");
+}
+
 {
   my $inputmodel = RDF::Trine::Model->temporary_model;
   $inputmodel->add_statement(RDF::Trine::Statement->new(
@@ -63,7 +65,18 @@ $mech->content_is('', 'No content');
 			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
 			      RDF::Trine::Node::Literal->new('DAHUT')));
 
-  $mech->post($uri1, Content => $serializer->serialize_model_to_string($inputmodel));
+  my $rdfxml = $serializer->serialize_model_to_string($inputmodel);
+  $mech->post($uri1,
+	      'Content-Type' => 'text/turtle',
+	      Content => $rdfxml);
+ TODO: {
+    local $TODO = "Need 400 error messages";
+    is($mech->status, 400, "POSTing RDF/XML with Turtle type gives 400");
+    $mech->content_is('', 'No content');
+  }
+  $mech->post($uri1,
+	      'Content-Type' => 'application/rdf+xml',
+	      Content => $rdfxml);
   is($mech->status, 204, "POSTing a model gives 204");
   $mech->content_is('', 'No content');
 }
@@ -72,11 +85,47 @@ $mech->get($uri1); # Check that we get what we posted.
 is($mech->status, 200, "Returns 200");
 $mech->content_contains('DAHUT', 'DAHUT test string found.');
 
+{
+  my $inputmodel = RDF::Trine::Model->temporary_model;
+  $inputmodel->add_statement(RDF::Trine::Statement->new(
+			      RDF::Trine::Node::Resource->new('/foo', $base_uri),
+			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
+			      RDF::Trine::Node::Literal->new('DAHUUUUUUT')));
+
+  my $tserializer = RDF::Trine::Serializer::Turtle->new;
+  my $turtle = $tserializer->serialize_model_to_string($inputmodel);
+  $mech->post($uri1, Content => $turtle);
+ TODO: {
+    local $TODO = "Need 400 error messages";
+    is($mech->status, 400, "POSTing Turtle with no content-type gives 400");
+    $mech->content_is('', 'No content');
+  }
+  $mech->post($uri1,
+	      'Content-Type' => 'text/turtle',
+	      Content => $turtle);
+  is($mech->status, 204, "POSTing Turtle with correct content-type gives 204");
+  $mech->content_is('', 'No content');
+}
+
+$mech->get($uri1); # Check that we get what we posted.
+is($mech->status, 200, "Returns 200");
+ TODO: {
+    local $TODO = "Weird";
+    $mech->content_contains('DAHUUUUUUT', 'DAHUUUUUUT test string found.');
+  }
+
+
 diag 'PUT request';
 
 $mech->put($uri2);
 is($mech->status, 201, "PUTting no model gives 201");
 $mech->content_is('', 'No content');
+
+ TODO: {
+    local $TODO = "Need 400 error messages";
+    $mech->put($uri2, Content => 'Errrr');
+    is($mech->status, 400, "PUTting rubbish gives 400");
+  }
 
 {
   my $inputmodel = RDF::Trine::Model->temporary_model;
@@ -113,7 +162,7 @@ diag "Unsupported FOOBAR request";
   my $request = HTTP::Request->new(FOOBAR => $uri1);
   $mech->request($request);
   is($mech->status, 405, "Returns 405");
-  $mech->content_is('Method not allowed', 'Right error message');
+  $mech->content_is('Method not allowed', 'Correct error message');
 }
 
 done_testing();
