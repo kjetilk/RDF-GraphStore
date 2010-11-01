@@ -240,6 +240,7 @@ Return a L<RDF::Trine::Model> with the triples from the payload.
 sub payload_model {
   my ($self, $req) = @_;
 
+  return undef if (! defined($req->content_length) || ($req->content_length == 0));
   my $io = $req->input;
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
