@@ -1,4 +1,4 @@
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Test::Moose;
 use Test::Exception;
 use URI;
@@ -16,6 +16,7 @@ ok($uri, "URI object OK");
 
 isa_ok($hb, 'RDF::Query::HTTPBindings');
 has_attribute_ok($hb, 'model');
+has_attribute_ok($hb, 'response');
 has_attribute_ok($hb, 'headers_in');
 has_attribute_ok($hb, 'graph_uri');
 

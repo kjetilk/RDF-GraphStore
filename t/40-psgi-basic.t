@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 38;
+use Test::More tests => 37;
 use Test::WWW::Mechanize::PSGI;
 
 use RDF::Trine::Serializer::RDFXML;
@@ -72,7 +72,6 @@ TODO: {
  TODO: {
     local $TODO = "Need 400 error messages";
     is($mech->status, 400, "POSTing RDF/XML with Turtle type gives 400");
-    $mech->content_is('', 'No content');
   }
   $mech->post($uri1,
 	      'Content-Type' => 'application/rdf+xml',
@@ -98,7 +97,7 @@ $mech->content_contains('DAHUT', 'DAHUT test string found.');
  TODO: {
     local $TODO = "Need 415 error messages";
     is($mech->status, 415, "POSTing Turtle with no content-type gives 415");
-    $mech->content_is('', 'No content');
+    $mech->content_contains('Unsupported Content Type', 'Unsupported Content Type');
   }
   $mech->post($uri1,
 	      'Content-Type' => 'text/turtle',

@@ -40,6 +40,7 @@ ok(!$head->body, 'No body found');
 
 is($head->content_type, 'text/turtle', 'Correct content type');
 
+$hb->clear_response;
 $hb->graph_uri($uri2);
 my $head2 = $hb->head_response;
 isa_ok($head2, 'Plack::Response', 'head_response returns');
@@ -48,6 +49,7 @@ is($head2->code, 404, "Head request for a non-existent graph returns 404");
 
 
 diag "GET request";
+$hb->clear_response;
 $hb->graph_uri($uri1);
 my $get = $hb->get_response;
 isa_ok($get, 'Plack::Response', 'get_response returns');
@@ -58,6 +60,7 @@ like($get->body, qr|<http://localhost:5000/foo> <http://xmlns.com/foaf/0.1/page>
 
 is($get->content_type, 'text/turtle', 'Correct content type');
 
+$hb->clear_response;
 $hb->graph_uri($uri2);
 my $get2 = $hb->get_response;
 isa_ok($get2, 'Plack::Response', 'get_response returns');
@@ -67,6 +70,7 @@ is($get2->code, 404, "Getting a non-existent graph returns 404");
 diag 'POST request';
 
 {
+  $hb->clear_response;
   $hb->graph_uri($uri1);
   my $post = $hb->post_response;
   isa_ok($post, 'Plack::Response', 'post_response returns');
@@ -79,12 +83,14 @@ diag 'POST request';
 			      RDF::Trine::Node::Resource->new('/foo', $base_uri),
 			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
 			      RDF::Trine::Node::Literal->new('DAHUT')));
+  $hb->clear_response;
   $hb->graph_uri($uri1);
   my $post = $hb->post_response($inputmodel);
   isa_ok($post, 'Plack::Response', 'post_response returns');
   is($post->code, 204, "POSTing a model gives 204");
   is(length($post->body), 0, "No content returned");
 
+  $hb->clear_response;
   my $get_after_post = $hb->get_response;
   isa_ok($get_after_post, 'Plack::Response', 'get_response returns');
 
@@ -95,6 +101,7 @@ diag 'POST request';
 diag 'PUT request';
 
 {
+  $hb->clear_response;
   $hb->graph_uri($uri2);
   my $put = $hb->put_response;
   isa_ok($put, 'Plack::Response', 'put_response returns');
@@ -112,12 +119,14 @@ diag 'PUT request';
 			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
 			      RDF::Trine::Node::Literal->new('DAAAHUUUUT')));
 
+  $hb->clear_response;
   $hb->graph_uri($uri2);
   my $put = $hb->put_response($inputmodel);
   isa_ok($put, 'Plack::Response', 'put_response returns');
   is($put->code, 201, "PUTing model gives 201");
   is($put->location, $uri2, "Should return a Location to the same URI");
 
+  $hb->clear_response;
   my $get_after_put = $hb->get_response($uri2);
   isa_ok($get_after_put, 'Plack::Response', 'get_response returns');
 
@@ -129,11 +138,13 @@ diag 'PUT request';
 diag 'DELETE request';
 
 {
+  $hb->clear_response;
   $hb->graph_uri($uri2);
   my $delete = $hb->delete_response;
   isa_ok($delete, 'Plack::Response', 'delete_response returns');
   is($delete->code, 204, "DELETEing a model gives 204");
 
+  $hb->clear_response;
   my $get_after_delete = $hb->get_response;
   isa_ok($get_after_delete, 'Plack::Response', 'get_response returns');
   is($get_after_delete->code, 404, "Getting DELETEd graph returns 404");
@@ -141,6 +152,7 @@ diag 'DELETE request';
 
 TODO: {
   local $TODO = 'I have to check if the URI exists and throw 404';
+  $hb->clear_response;
   $hb->graph_uri($uri2);
   my $delete = $hb->delete_response($uri2);
   isa_ok($delete, 'Plack::Response', 'delete_response returns');

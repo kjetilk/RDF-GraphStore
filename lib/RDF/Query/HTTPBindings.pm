@@ -217,12 +217,12 @@ sub post_response {
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
   my $add_model = shift;
-  $self->clear_response;
   unless (defined($add_model) && $add_model->isa('RDF::Trine::Model')) {
-    # Simply return if no payload. TODO: Ask WG about this
     $self->response->code(204);
+    $self->response->body('');
     return $self->response;
   }
+  $self->clear_response;
   # TODO: How do we escape the payload for security?
   my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload($add_model) . '} }';
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
@@ -259,7 +259,6 @@ Return a L<RDF::Trine::Model> with the triples from the payload.
 
 sub payload_model {
   my ($self, $req) = @_;
-
   return undef if (! defined($req->content_length) || ($req->content_length == 0));
   my $io = $req->input;
   my $model = RDF::Trine::Model->temporary_model;
@@ -268,7 +267,13 @@ sub payload_model {
     my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
     if ($pclass) {
       $parser = $pclass->new();
-    } # TODO: else return 415?
+    } else {
+      $self->response->status(415);
+      $self->response->content_type('text/plain');
+      $self->response->body('Unsupported Content Type: ' . $req->header( 'Content-Type' ));
+      return undef
+    }
+
   }
   unless ($parser) { # This is underspecified
     $parser = RDF::Trine::Parser->new('rdfxml');
