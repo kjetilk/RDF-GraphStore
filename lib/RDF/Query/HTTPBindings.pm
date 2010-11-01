@@ -74,6 +74,26 @@ sub _build_headers_in {
     return HTTP::Headers->new() ;
 }
 
+=head2 response
+
+Returns the L<Plack::Response> object if it exists
+
+=head2 clear_response
+
+Clears the L<Plack::Response> object
+
+=head2 has_response
+
+Returns true if the C<response> is initialized
+
+=cut
+
+has response => ( is => 'ro', isa => 'Plack::Response', lazy_build => 1);
+
+sub _build_response { return Plack::Response->new(); }
+
+
+
 
 =head2 graph_uri ($uri)
 
@@ -125,12 +145,12 @@ sub _head_and_get_response {
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
   my $get = shift;
-  my $res = Plack::Response->new;
+  $self->clear_response;
   
   my $etag = $self->_etag($uri);
   if (my $code = $self->_check_etag($uri, $etag)) {
-  	$res->status($code);
-  	return $res;
+  	$self->response->status($code);
+  	return $self->response;
   }
   
   my $sparql = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <$uri> { ?s ?p ?o } }";
@@ -143,22 +163,22 @@ sub _head_and_get_response {
   if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
     my $body = encode_utf8($output);
     if ($get) {
-      $res->body($body);
+      $self->response->body($body);
     }
-    $res->content_type($ct);
-    $res->content_length(bytes::length($body));
-    $res->status(200);
+    $self->response->content_type($ct);
+    $self->response->content_length(bytes::length($body));
+    $self->response->status(200);
     if (defined($etag)) {
-      $res->headers->header( ETag => $etag );
+      $self->response->headers->header( ETag => $etag );
     }
   } else {
-    $res->status(404);
-    $res->content_type('text/plain');
+    $self->response->status(404);
+    $self->response->content_type('text/plain');
     if ($get) {
-      $res->body('Graph not found');
+      $self->response->body('Graph not found');
     }
   }
-  return $res;
+  return $self->response;
 }
 
 =head2 put_response
@@ -172,17 +192,17 @@ sub put_response {
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
   my $new_model = shift;
-  my $res = Plack::Response->new;
+  $self->clear_response;
   my $sparql = "DROP SILENT GRAPH <$uri>;\n";
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
     $sparql .= "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
-    $res->location($uri);
+    $self->response->location($uri);
   }
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
-  $res->code(201);
-  return $res;
+  $self->response->code(201);
+  return $self->response;
 }
 
 
@@ -197,19 +217,19 @@ sub post_response {
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
   my $add_model = shift;
-  my $res = Plack::Response->new;
+  $self->clear_response;
   unless (defined($add_model) && $add_model->isa('RDF::Trine::Model')) {
     # Simply return if no payload. TODO: Ask WG about this
-    $res->code(204);
-    return $res;
+    $self->response->code(204);
+    return $self->response;
   }
   # TODO: How do we escape the payload for security?
   my $sparql = "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload($add_model) . '} }';
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
-  $res->code(204);
+  $self->response->code(204);
   # TODO: Support the "201 + Location" scenario
-  return $res;
+  return $self->response;
 }
 
 =head2 delete_response
@@ -222,12 +242,12 @@ sub delete_response {
   my $self = shift;
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
-  my $res = Plack::Response->new;
+  $self->clear_response;
   my $sparql = "DROP GRAPH <$uri>";
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
-  $res->code(204);
-  return $res;
+  $self->response->code(204);
+  return $self->response;
 }
 
 
