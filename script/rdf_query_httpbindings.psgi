@@ -36,7 +36,8 @@ BEGIN {
       } else {
         $graph = $req->uri;
       }
-      return $hb->head_response($graph)->finalize;
+      $hb->graph_uri($graph);
+      return $hb->head_response->finalize;
     },
 
     sub (GET) {
@@ -49,7 +50,8 @@ BEGIN {
       } else {
         $graph = $req->uri;
       }
-      return $hb->get_response($graph)->finalize;
+      $hb->graph_uri($graph);
+      return $hb->get_response()->finalize;
     },
 
     sub (DELETE) {
@@ -62,6 +64,7 @@ BEGIN {
       } else {
         $graph = $req->uri;
       }
+      $hb->graph_uri($graph);
       return $hb->delete_response($graph)->finalize;
     },
 

@@ -25,10 +25,10 @@ my $hb = RDF::Query::HTTPBindings->new(model => $model);
 
 
 my $uri1 = URI->new('http://localhost:5000/graphs/g1');
-ok($uri1, "URI 1 object OK");
+isa_ok($uri1, 'URI', "URI 1 object OK");
 
 my $uri2 = URI->new('http://localhost:5000/graphs/g3');
-ok($uri2, "URI 2 object OK");
+isa_ok($uri2, 'URI', "URI 2 object OK");
 
 diag "HEAD request";
 $hb->graph_uri($uri1);
