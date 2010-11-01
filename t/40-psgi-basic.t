@@ -53,9 +53,9 @@ is($mech->status, 204, "POSTing no model gives 204");
 $mech->content_is('', 'No content');
 
 TODO: {
-  local $TODO = "Need 400 error messages";
+  local $TODO = "Need 415 error messages";
   $mech->post($uri1, Content => 'Errrr');
-  is($mech->status, 400, "POSTing rubbish gives 400");
+  is($mech->status, 415, "POSTing rubbish gives 415");
 }
 
 {
@@ -96,8 +96,8 @@ $mech->content_contains('DAHUT', 'DAHUT test string found.');
   my $turtle = $tserializer->serialize_model_to_string($inputmodel);
   $mech->post($uri1, Content => $turtle);
  TODO: {
-    local $TODO = "Need 400 error messages";
-    is($mech->status, 400, "POSTing Turtle with no content-type gives 400");
+    local $TODO = "Need 415 error messages";
+    is($mech->status, 415, "POSTing Turtle with no content-type gives 415");
     $mech->content_is('', 'No content');
   }
   $mech->post($uri1,
@@ -119,9 +119,9 @@ is($mech->status, 201, "PUTting no model gives 201");
 $mech->content_is('', 'No content');
 
  TODO: {
-    local $TODO = "Need 400 error messages";
+    local $TODO = "Need 415 error messages";
     $mech->put($uri2, Content => 'Errrr');
-    is($mech->status, 400, "PUTting rubbish gives 400");
+    is($mech->status, 415, "PUTting rubbish gives 415");
   }
 
 {
