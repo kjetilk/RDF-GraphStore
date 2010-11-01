@@ -88,7 +88,7 @@ $mech->content_contains('DAHUT', 'DAHUT test string found.');
 {
   my $inputmodel = RDF::Trine::Model->temporary_model;
   $inputmodel->add_statement(RDF::Trine::Statement->new(
-			      RDF::Trine::Node::Resource->new('/foo', $base_uri),
+			      RDF::Trine::Node::Resource->new('/baz', $base_uri),
 			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
 			      RDF::Trine::Node::Literal->new('DAHUUUUUUT')));
 
@@ -109,10 +109,7 @@ $mech->content_contains('DAHUT', 'DAHUT test string found.');
 
 $mech->get($uri1); # Check that we get what we posted.
 is($mech->status, 200, "Returns 200");
- TODO: {
-    local $TODO = "Weird";
-    $mech->content_contains('DAHUUUUUUT', 'DAHUUUUUUT test string found.');
-  }
+$mech->content_contains('DAHUUUUUUT', 'DAHUUUUUUT test string found.');
 
 
 diag 'PUT request';
