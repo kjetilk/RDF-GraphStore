@@ -270,7 +270,7 @@ sub payload_model {
   return undef if (! defined($req->content_length) || ($req->content_length == 0));
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
-  my $type = $req->header( 'Content-Type' )
+  my $type = $req->header( 'Content-Type' );
   if ($type) {
     my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
     if ($pclass) {
