@@ -266,17 +266,19 @@ Return a L<RDF::Trine::Model> with the triples from the payload.
 
 sub payload_model {
   my ($self, $req) = @_;
+  $DB::single=1 if $req->content_length == 5;
   return undef if (! defined($req->content_length) || ($req->content_length == 0));
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
-  if (my $type = $req->header( 'Content-Type' )) {
+  my $type = $req->header( 'Content-Type' )
+  if ($type) {
     my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
     if ($pclass) {
       $parser = $pclass->new();
     } else {
       $self->response->status(415);
       $self->response->content_type('text/plain');
-      $self->response->body('Unsupported Content Type: ' . $req->header( 'Content-Type' ));
+      $self->response->body("Unsupported Content Type: $type");
       return undef
     }
 
