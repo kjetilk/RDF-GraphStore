@@ -110,7 +110,7 @@ $mech->content_contains('DAHUUUUUUT', 'DAHUUUUUUT test string found.');
 diag 'PUT request';
 
 $mech->put($uri2);
-is($mech->status, 201, "PUTting no model gives 201");
+is($mech->status, 204, "PUTting no model gives 204");
 $mech->content_is('', 'No content');
 
  TODO: {

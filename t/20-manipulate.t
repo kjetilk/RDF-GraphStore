@@ -105,7 +105,7 @@ diag 'PUT request';
   $hb->graph_uri($uri2);
   my $put = $hb->put_response;
   isa_ok($put, 'Plack::Response', 'put_response returns');
-  is($put->code, 201, "PUTing nothing gives 201");
+  is($put->code, 204, "PUTing nothing gives 204");
  TODO: {
     local $TODO = 'Ask WG if this should have a Location, since you cannot GET from it, or can you?';
     is($put->location, $uri2, "Should return a Location to the same URI");

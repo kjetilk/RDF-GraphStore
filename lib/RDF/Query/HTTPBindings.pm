@@ -198,7 +198,13 @@ sub put_response {
     # TODO: How do we escape the payload for security?
     $sparql .= "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
     $self->response->location($uri);
+  } else {
+    return $self->response if $self->has_response;
+    $self->response->code(204);
+    $self->response->body('');
+    return $self->response;
   }
+
   my $query = RDF::Query->new($sparql, { update => 1 }) || confess (RDF::Query->error);
   $query->execute($self->model); # TODO: What could go wrong here and how do we deal with it?
   $self->response->code(201);
