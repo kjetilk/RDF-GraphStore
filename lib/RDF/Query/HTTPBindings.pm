@@ -271,7 +271,7 @@ sub payload_model {
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
   my $type = $req->header( 'Content-Type' );
-  if ($type) {
+  if defined($type) {
     my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
     if ($pclass) {
       $parser = $pclass->new();
