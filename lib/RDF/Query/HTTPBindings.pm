@@ -192,7 +192,6 @@ sub put_response {
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
   my $new_model = shift;
-  $self->clear_response;
   my $sparql = "DROP SILENT GRAPH <$uri>;\n";
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
@@ -266,12 +265,10 @@ Return a L<RDF::Trine::Model> with the triples from the payload.
 
 sub payload_model {
   my ($self, $req) = @_;
-  $DB::single=1 if $req->content_length == 5;
   return undef if (! defined($req->content_length) || ($req->content_length == 0));
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
-  my $type = $req->header( 'Content-Type' );
-  if defined($type) {
+  if (my ($type) = $req->header( 'Content-Type' )) {
     my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
     if ($pclass) {
       $parser = $pclass->new();
@@ -279,13 +276,19 @@ sub payload_model {
       $self->response->status(415);
       $self->response->content_type('text/plain');
       $self->response->body("Unsupported Content Type: $type");
-      return undef
+      return undef;
     }
 
+  }  else {
+      $self->response->status(415);
+      $self->response->content_type('text/plain');
+      $self->response->body("No content type present.");
+      return undef;
   }
   unless ($parser) { # This is underspecified
     $parser = RDF::Trine::Parser->new('rdfxml');
   }
+
   my $content = '';
   my $read = 0;
   my $io = $req->input;

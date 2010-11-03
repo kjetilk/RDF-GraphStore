@@ -113,11 +113,8 @@ $mech->put($uri2);
 is($mech->status, 204, "PUTting no model gives 204");
 $mech->content_is('', 'No content');
 
- TODO: {
-    local $TODO = "Need 415 error messages";
-    $mech->put($uri2, Content => 'Errrr');
-    is($mech->status, 415, "PUTting rubbish gives 415");
-  }
+$mech->put($uri2, Content => 'Errrr');
+is($mech->status, 415, "PUTting rubbish with no content type gives 415");
 
 {
   my $inputmodel = RDF::Trine::Model->temporary_model;
@@ -125,7 +122,8 @@ $mech->content_is('', 'No content');
 			      RDF::Trine::Node::Resource->new('/bar', $base_uri),
 			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
 			      RDF::Trine::Node::Literal->new('DAAAHUUUUT')));
-  $mech->put($uri2, Content => $serializer->serialize_model_to_string($inputmodel));
+  $mech->put($uri2, 'Content-Type' => 'application/rdf+xml',
+	     Content => $serializer->serialize_model_to_string($inputmodel));
   is($mech->status, 201, "PUTting a model gives 201");
   $mech->content_is('', 'No content');
   is($mech->res->header('Location'), $uri2, "Should return a Location to the same URI");
