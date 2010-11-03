@@ -29,6 +29,7 @@ BEGIN {
     sub (HEAD) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
@@ -43,6 +44,7 @@ BEGIN {
     sub (GET) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
@@ -57,6 +59,7 @@ BEGIN {
     sub (DELETE) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
@@ -71,6 +74,7 @@ BEGIN {
     sub (PUT) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
@@ -85,6 +89,7 @@ BEGIN {
     sub (POST) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {

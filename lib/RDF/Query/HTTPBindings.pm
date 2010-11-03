@@ -218,6 +218,7 @@ sub post_response {
   my $uri = $self->graph_uri;
   my $add_model = shift;
   unless (defined($add_model) && $add_model->isa('RDF::Trine::Model')) {
+    return $self->response if $self->has_response;
     $self->response->code(204);
     $self->response->body('');
     return $self->response;
@@ -260,7 +261,6 @@ Return a L<RDF::Trine::Model> with the triples from the payload.
 sub payload_model {
   my ($self, $req) = @_;
   return undef if (! defined($req->content_length) || ($req->content_length == 0));
-  my $io = $req->input;
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
   if (my $type = $req->header( 'Content-Type' )) {
@@ -278,8 +278,9 @@ sub payload_model {
   unless ($parser) { # This is underspecified
     $parser = RDF::Trine::Parser->new('rdfxml');
   }
-  my $content	= '';
-  my $read		= 0;
+  my $content = '';
+  my $read = 0;
+  my $io = $req->input;
   while (1) {
     my $r = $io->read($content, 1024, $read);
     $read += $r;

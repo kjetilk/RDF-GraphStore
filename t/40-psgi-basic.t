@@ -52,11 +52,8 @@ $mech->post($uri1);
 is($mech->status, 204, "POSTing no model gives 204");
 $mech->content_is('', 'No content');
 
-TODO: {
-  local $TODO = "Need 415 error messages";
-  $mech->post($uri1, Content => 'Errrr');
-  is($mech->status, 415, "POSTing rubbish gives 415");
-}
+$mech->post($uri1, Content => 'Errrr');
+is($mech->status, 415, "POSTing rubbish gives 415");
 
 {
   my $inputmodel = RDF::Trine::Model->temporary_model;
@@ -94,11 +91,10 @@ $mech->content_contains('DAHUT', 'DAHUT test string found.');
   my $tserializer = RDF::Trine::Serializer::Turtle->new;
   my $turtle = $tserializer->serialize_model_to_string($inputmodel);
   $mech->post($uri1, Content => $turtle);
- TODO: {
-    local $TODO = "Need 415 error messages";
-    is($mech->status, 415, "POSTing Turtle with no content-type gives 415");
-    $mech->content_contains('Unsupported Content Type', 'Unsupported Content Type');
-  }
+
+  is($mech->status, 415, "POSTing Turtle with no content-type gives 415");
+  $mech->content_contains('Unsupported Content Type', 'Unsupported Content Type');
+
   $mech->post($uri1,
 	      'Content-Type' => 'text/turtle',
 	      Content => $turtle);
