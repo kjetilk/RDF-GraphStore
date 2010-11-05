@@ -150,13 +150,15 @@ diag 'DELETE request';
   is($get_after_delete->code, 404, "Getting DELETEd graph returns 404");
 }
 
-TODO: {
-  local $TODO = 'I have to check if the URI exists and throw 404';
+{
   $hb->clear_response;
   $hb->graph_uri($uri2);
   my $delete = $hb->delete_response($uri2);
   isa_ok($delete, 'Plack::Response', 'delete_response returns');
+TODO: {
+  local $TODO = 'I have to check if the URI exists and throw 404';
+
   is($delete->code, 404, "DELETEing a graph that doesn't exist gives 404");
-}
+}}
 
 done_testing;
