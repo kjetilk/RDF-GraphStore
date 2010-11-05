@@ -15,6 +15,8 @@ use URI;
 use URI::Escape;
 use Encode;
 use Digest::MD5 qw(md5_hex);
+use Error qw(:try);
+
 
 
 =head1 NAME
@@ -268,7 +270,8 @@ sub payload_model {
   return undef if (! defined($req->content_length) || ($req->content_length == 0));
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
-  if (my ($type) = $req->header( 'Content-Type' )) {
+ 
+  if ( my ($type) = $req->header( 'Content-Type' )) {
     my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
     if ($pclass) {
       $parser = $pclass->new();
@@ -298,7 +301,22 @@ sub payload_model {
     last unless $r;
   }
 
-  $parser->parse_into_model( $self->graph_uri, $content, $model );
+  try {
+    $parser->parse_into_model( $self->graph_uri, $content, $model );
+  }
+  catch RDF::Trine::Error::ParserError with {
+    my $E = shift;
+    $self->response->status(400);
+    $self->response->content_type('text/plain');
+    $self->response->body("Failed to parse payload with according to specified content type: $E->text");
+    return undef;
+  } otherwise {
+    $self->response->status(400);
+    $self->response->content_type('text/plain');
+    $self->response->body("Unknown error when parsing: $@");
+    return undef;
+  };
+
 
   return $model;
 }
