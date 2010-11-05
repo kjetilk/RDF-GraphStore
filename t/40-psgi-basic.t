@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 37;
+use Test::More tests => 36;
 use Test::WWW::Mechanize::PSGI;
 
 use RDF::Trine::Serializer::RDFXML;
@@ -124,7 +124,6 @@ is($mech->status, 415, "PUTting rubbish with no content type gives 415");
 	     Content => $serializer->serialize_model_to_string($inputmodel));
   is($mech->status, 201, "PUTting a model gives 201");
   $mech->content_is('', 'No content');
-  is($mech->res->header('Location'), $uri2, "Should return a Location to the same URI");
 }
 
 $mech->get($uri2); # Check that we get what we putted.

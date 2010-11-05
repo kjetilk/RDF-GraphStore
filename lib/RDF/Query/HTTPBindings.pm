@@ -196,7 +196,6 @@ sub put_response {
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
     $sparql .= "INSERT DATA { GRAPH <$uri> {\n\t" . _serialize_payload( $new_model ) . '} }';
-    $self->response->location($uri);
   } else {
     return $self->response if $self->has_response;
     $self->response->code(204);
