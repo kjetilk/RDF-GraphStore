@@ -116,6 +116,27 @@ sub _set_graph_uri {
   return $uri;
 }
 
+=head2 init ( $headers, $graph_uri )
+
+A method to clear the response, set the headers and the graph URI. The graph URI may be either a L<URI> object or a string.
+
+=cut
+
+sub init {
+  my ($self, $headers, $graph_uri) = @_;
+  $self->clear_response;
+  $self->headers_in($headers);
+  if ($graph_uri->isa('URI')) {
+    $self->graph_uri($graph_uri);
+  } else {
+    $self->graph_uri(URI->new($graph_uri));
+  }
+  return $self;
+}
+
+
+
+
 =head2 head_response()
 
 What to do with a HEAD request. Takes a URI object or a simple string

@@ -26,36 +26,28 @@ BEGIN {
     sub (HEAD + ?graph=) {
       my ($self, $graph) = @_;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri(URI->new($graph));
+      $hb->init($req->headers, $graph);
       return $hb->head_response->finalize;
     },
 
     sub (HEAD) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri($req->uri);
+      $hb->init($req->headers, $req->uri);
       return $hb->head_response->finalize;
     },
 
     sub (GET + ?graph=) {
       my ($self, $graph) = @_;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri(URI->new($graph));
+      $hb->init($req->headers, $graph);
       return $hb->get_response->finalize;
     },
 
     sub (GET) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri($req->uri);
+      $hb->init($req->headers, $req->uri);
       return $hb->get_response->finalize;
     },
 
@@ -63,18 +55,14 @@ BEGIN {
     sub (DELETE + ?graph=) {
       my ($self, $graph) = @_;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri(URI->new($graph));
+      $hb->init($req->headers, $graph);
       return $hb->delete_response->finalize;
     },
 
     sub (DELETE) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri($req->uri);
+      $hb->init($req->headers, $req->uri);
       return $hb->delete_response->finalize;
     },
 
@@ -82,36 +70,28 @@ BEGIN {
     sub (PUT + ?graph=) {
       my ($self, $graph) = @_;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri(URI->new($graph));
+      $hb->init($req->headers, $graph);
       return $hb->put_response($hb->payload_model($req))->finalize;
     },
 
     sub (PUT) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri($req->uri);
+      $hb->init($req->headers, $req->uri);
       return $hb->put_response($hb->payload_model($req))->finalize;
     },
 
     sub (POST + ?graph=) {
       my ($self, $graph) = @_;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri(URI->new($graph));
+      $hb->init($req->headers, $graph);
       return $hb->post_response($hb->payload_model($req))->finalize;
     },
 
     sub (POST) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
-      $hb->clear_response;
-      $hb->headers_in($req->headers);
-      $hb->graph_uri($req->uri);
+      $hb->init($req->headers, $req->uri);
       return $hb->post_response($hb->payload_model($req))->finalize;
     },
 
