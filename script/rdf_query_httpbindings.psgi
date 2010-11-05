@@ -23,23 +23,31 @@ BEGIN {
   use Data::Dumper;
   
   dispatch {
- #   sub (GET ?graph=) {
-     # die Dumper(@_);
-  #  },
+    sub (HEAD + ?graph=) {
+      my ($self, $graph) = @_;
+      my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
+      $hb->headers_in($req->headers);
+      $hb->graph_uri(URI->new($graph));
+      return $hb->head_response->finalize;
+    },
 
     sub (HEAD) {
       my $self = shift;
       my $req = Plack::Request->new($_[PSGI_ENV]);
       $hb->clear_response;
       $hb->headers_in($req->headers);
-      my $graph;
-      if (my $g = $req->param('graph')) {
-        $graph = URI->new($g);
-      } else {
-        $graph = $req->uri;
-      }
-      $hb->graph_uri($graph);
+      $hb->graph_uri($req->uri);
       return $hb->head_response->finalize;
+    },
+
+    sub (GET + ?graph=) {
+      my ($self, $graph) = @_;
+      my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
+      $hb->headers_in($req->headers);
+      $hb->graph_uri(URI->new($graph));
+      return $hb->get_response->finalize;
     },
 
     sub (GET) {
@@ -47,14 +55,18 @@ BEGIN {
       my $req = Plack::Request->new($_[PSGI_ENV]);
       $hb->clear_response;
       $hb->headers_in($req->headers);
-      my $graph;
-      if (my $g = $req->param('graph')) {
-        $graph = URI->new($g);
-      } else {
-        $graph = $req->uri;
-      }
-      $hb->graph_uri($graph);
-      return $hb->get_response()->finalize;
+      $hb->graph_uri($req->uri);
+      return $hb->get_response->finalize;
+    },
+
+
+    sub (DELETE + ?graph=) {
+      my ($self, $graph) = @_;
+      my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
+      $hb->headers_in($req->headers);
+      $hb->graph_uri(URI->new($graph));
+      return $hb->delete_response->finalize;
     },
 
     sub (DELETE) {
@@ -62,14 +74,18 @@ BEGIN {
       my $req = Plack::Request->new($_[PSGI_ENV]);
       $hb->clear_response;
       $hb->headers_in($req->headers);
-      my $graph;
-      if (my $g = $req->param('graph')) {
-        $graph = URI->new($g);
-      } else {
-        $graph = $req->uri;
-      }
-      $hb->graph_uri($graph);
-      return $hb->delete_response($graph)->finalize;
+      $hb->graph_uri($req->uri);
+      return $hb->delete_response->finalize;
+    },
+
+
+    sub (PUT + ?graph=) {
+      my ($self, $graph) = @_;
+      my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
+      $hb->headers_in($req->headers);
+      $hb->graph_uri(URI->new($graph));
+      return $hb->put_response($hb->payload_model($req))->finalize;
     },
 
     sub (PUT) {
@@ -77,14 +93,17 @@ BEGIN {
       my $req = Plack::Request->new($_[PSGI_ENV]);
       $hb->clear_response;
       $hb->headers_in($req->headers);
-      my $graph;
-      if (my $g = $req->param('graph')) {
-        $graph = URI->new($g);
-      } else {
-        $graph = $req->uri;
-      }
-      $hb->graph_uri($graph);
+      $hb->graph_uri($req->uri);
       return $hb->put_response($hb->payload_model($req))->finalize;
+    },
+
+    sub (POST + ?graph=) {
+      my ($self, $graph) = @_;
+      my $req = Plack::Request->new($_[PSGI_ENV]);
+      $hb->clear_response;
+      $hb->headers_in($req->headers);
+      $hb->graph_uri(URI->new($graph));
+      return $hb->post_response($hb->payload_model($req))->finalize;
     },
 
     sub (POST) {
@@ -92,13 +111,7 @@ BEGIN {
       my $req = Plack::Request->new($_[PSGI_ENV]);
       $hb->clear_response;
       $hb->headers_in($req->headers);
-      my $graph;
-      if (my $g = $req->param('graph')) {
-        $graph = URI->new($g);
-      } else {
-        $graph = $req->uri;
-      }
-      $hb->graph_uri($graph);
+      $hb->graph_uri($req->uri);
       return $hb->post_response($hb->payload_model($req))->finalize;
     },
 
