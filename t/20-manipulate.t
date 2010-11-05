@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More  tests => 42;
+use Test::More  tests => 41;
 use Test::Moose;
 use Test::Exception;
 use URI;
@@ -124,7 +124,6 @@ diag 'PUT request';
   my $put = $hb->put_response($inputmodel);
   isa_ok($put, 'Plack::Response', 'put_response returns');
   is($put->code, 201, "PUTing model gives 201");
-  is($put->location, $uri2, "Should return a Location to the same URI");
 
   $hb->clear_response;
   my $get_after_put = $hb->get_response($uri2);
