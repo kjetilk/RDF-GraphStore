@@ -6,6 +6,7 @@ use Config::JFDI;
 use RDF::Query::HTTPBindings;
 use Plack::Request;
 use Carp qw(confess);
+use URI;
 
 my $config;
 BEGIN {
@@ -33,7 +34,7 @@ BEGIN {
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
-        $graph = $g;
+        $graph = URI->new($g);
       } else {
         $graph = $req->uri;
       }
@@ -48,7 +49,7 @@ BEGIN {
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
-        $graph = $g;
+        $graph = URI->new($g);
       } else {
         $graph = $req->uri;
       }
@@ -63,7 +64,7 @@ BEGIN {
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
-        $graph = $g;
+        $graph = URI->new($g);
       } else {
         $graph = $req->uri;
       }
@@ -78,7 +79,7 @@ BEGIN {
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
-        $graph = $g;
+        $graph = URI->new($g);
       } else {
         $graph = $req->uri;
       }
@@ -93,7 +94,7 @@ BEGIN {
       $hb->headers_in($req->headers);
       my $graph;
       if (my $g = $req->param('graph')) {
-        $graph = $g;
+        $graph = URI->new($g);
       } else {
         $graph = $req->uri;
       }
