@@ -66,10 +66,8 @@ is($mech->status, 415, "POSTing rubbish gives 415");
   $mech->post($uri1,
 	      'Content-Type' => 'text/turtle',
 	      Content => $rdfxml);
- TODO: {
-    local $TODO = "Need 400 error messages";
-    is($mech->status, 400, "POSTing RDF/XML with Turtle type gives 400");
-  }
+  is($mech->status, 400, "POSTing RDF/XML with Turtle type gives 400");
+
   $mech->post($uri1,
 	      'Content-Type' => 'application/rdf+xml',
 	      Content => $rdfxml);

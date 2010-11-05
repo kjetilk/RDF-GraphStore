@@ -15,8 +15,6 @@ use URI;
 use URI::Escape;
 use Encode;
 use Digest::MD5 qw(md5_hex);
-use Error qw(:try);
-
 
 
 =head1 NAME
@@ -301,22 +299,15 @@ sub payload_model {
     last unless $r;
   }
 
-  try {
+  eval {
     $parser->parse_into_model( $self->graph_uri, $content, $model );
-  }
-  catch RDF::Trine::Error::ParserError with {
-    my $E = shift;
-    $self->response->status(400);
-    $self->response->content_type('text/plain');
-    $self->response->body("Failed to parse payload with according to specified content type: $E->text");
-    return undef;
-  } otherwise {
-    $self->response->status(400);
-    $self->response->content_type('text/plain');
-    $self->response->body("Unknown error when parsing: $@");
-    return undef;
   };
-
+  if ($@) {
+    $self->response->status(400);
+    $self->response->content_type('text/plain');
+    $self->response->body("Failed to parse payload with according to specified content type: $@");
+    return undef;
+  }
 
   return $model;
 }
