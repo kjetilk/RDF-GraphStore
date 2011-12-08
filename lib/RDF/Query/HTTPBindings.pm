@@ -1,4 +1,4 @@
-package RDF::Query::HTTPBindings;
+package RDF::GraphStore;
 
 use Moose;
 use namespace::autoclean;
@@ -19,7 +19,7 @@ use Digest::MD5 qw(md5_hex);
 
 =head1 NAME
 
-RDF::Query::HTTPBindings - SPARQL 1.1 HTTP Bindings
+RDF::GraphStore - SPARQL 1.1 HTTP Bindings
 
 =head1 VERSION
 
@@ -387,7 +387,7 @@ implementation for demonstration purposes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc RDF::Query::HTTPBindings
+    perldoc RDF::GraphStore
 
 
 You can also look for information at:

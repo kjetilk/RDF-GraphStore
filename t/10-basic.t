@@ -5,16 +5,16 @@ use URI;
 use HTTP::Headers;
 
 BEGIN {
-  use_ok 'RDF::Query::HTTPBindings';
+  use_ok 'RDF::GraphStore';
 }
 
-my $hb = RDF::Query::HTTPBindings->new(model => RDF::Trine::Model->temporary_model);
+my $hb = RDF::GraphStore->new(model => RDF::Trine::Model->temporary_model);
 
 my $uri_string = 'http://localhost:5000/foo';
 my $uri = URI->new($uri_string);
 ok($uri, "URI object OK");
 
-isa_ok($hb, 'RDF::Query::HTTPBindings');
+isa_ok($hb, 'RDF::GraphStore');
 has_attribute_ok($hb, 'model');
 has_attribute_ok($hb, 'response');
 has_attribute_ok($hb, 'headers_in');

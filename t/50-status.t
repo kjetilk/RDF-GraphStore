@@ -1,10 +1,10 @@
 use Test::More;# tests => 7;
 
 BEGIN {
-  use_ok 'RDF::Query::HTTPBindings';
+  use_ok 'RDF::GraphStore';
 }
 
-my $hb = RDF::Query::HTTPBindings->new();
+my $hb = RDF::GraphStore->new();
 
 
 

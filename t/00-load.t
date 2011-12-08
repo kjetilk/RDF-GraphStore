@@ -3,7 +3,7 @@
 use Test::More tests => 1;
 
 BEGIN {
-    use_ok( 'RDF::Query::HTTPBindings' ) || print "Bail out!";
+    use_ok( 'RDF::GraphStore' ) || print "Bail out!";
 }
 
-diag( "Testing RDF::Query::HTTPBindings $RDF::Query::HTTPBindings::VERSION, Perl $], $^X" );
+diag( "Testing RDF::GraphStore $RDF::GraphStore::VERSION, Perl $], $^X" );

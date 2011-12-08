@@ -8,7 +8,7 @@ use HTTP::Headers;
 use FindBin qw($Bin);
 
 BEGIN {
-  use_ok 'RDF::Query::HTTPBindings';
+  use_ok 'RDF::GraphStore';
   use_ok 'RDF::Trine::Model';
 }
 
@@ -20,7 +20,7 @@ my $model = RDF::Trine::Model->new($store);
 my $base_uri = 'http://localhost:5000';
 $parser->parse_file_into_model( $base_uri, $file, $model );
 
-my $hb = RDF::Query::HTTPBindings->new(model => $model);
+my $hb = RDF::GraphStore->new(model => $model);
 
 
 

@@ -1,25 +1,25 @@
 #!/usr/bin/perl
 
-use Web::Simple 'RDF::Query::HTTPBindings::PlackServer';
+use Web::Simple 'RDF::GraphStore::PlackServer';
 use RDF::Trine;
 use Config::JFDI;
-use RDF::Query::HTTPBindings;
+use RDF::GraphStore;
 use Plack::Request;
 use Carp qw(confess);
 use URI;
 
 my $config;
 BEGIN {
-  $config = Config::JFDI->open( name => "RDF::Query::HTTPBindings") || confess "Couldn't find config";
+  $config = Config::JFDI->open( name => "RDF::GraphStore") || confess "Couldn't find config";
 }
 
 {
-  package RDF::Query::HTTPBindings::PlackServer;
+  package RDF::GraphStore::PlackServer;
 
   my $store = RDF::Trine::Store->new_with_config($config);
   my $model = RDF::Trine::Model->new($store);
 
-  my $hb = RDF::Query::HTTPBindings->new(model => $model);
+  my $hb = RDF::GraphStore->new(model => $model);
   use Data::Dumper;
   
   dispatch {
@@ -101,4 +101,4 @@ BEGIN {
   };
 }
 
-RDF::Query::HTTPBindings::PlackServer->run_if_script;
+RDF::GraphStore::PlackServer->run_if_script;
