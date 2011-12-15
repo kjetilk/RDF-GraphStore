@@ -1,7 +1,7 @@
 package RDF::GraphStore;
 
 use Moose;
-use namespace::autoclean;
+#use namespace::autoclean;
 
 use RDF::Query 2.9;
 use RDF::Trine 0.130;
@@ -136,19 +136,6 @@ sub init {
 
 
 
-
-=head2 head_response()
-
-What to do with a HEAD request. Takes a URI object or a simple string
-as argument. Returns a Plack::Response object.
-
-=cut
-
-sub head_response {
-  return _head_and_get_response(@_, 0);
-}
-
-
 =head2 get_response
 
 What to do with a GET request. Takes a URI object or a simple string
@@ -157,15 +144,9 @@ as argument. Returns a Plack::Response object.
 =cut
 
 sub get_response {
-  return _head_and_get_response(@_, 1);
-}
-
-# Do the actual work, with an additional boolean that should be true if we do a GET
-sub _head_and_get_response {
   my $self = shift;
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
-  my $get = shift;
   $self->clear_response;
   
   my $etag = $self->_etag($uri);
@@ -183,9 +164,7 @@ sub _head_and_get_response {
 
   if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
     my $body = encode_utf8($output);
-    if ($get) {
-      $self->response->body($body);
-    }
+    $self->response->body($body);
     $self->response->content_type($ct);
     $self->response->content_length(bytes::length($body));
     $self->response->status(200);
@@ -195,9 +174,7 @@ sub _head_and_get_response {
   } else {
     $self->response->status(404);
     $self->response->content_type('text/plain');
-    if ($get) {
-      $self->response->body('Graph not found');
-    }
+    $self->response->body('Graph not found');
   }
   return $self->response;
 }
