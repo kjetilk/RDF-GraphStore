@@ -18,8 +18,6 @@ requires 'Plack::Response'		=> 0;
 requires 'namespace::autoclean'         => 0;
 requires 'URI'                          => 0;
 
-recommends 'Web::Simple'                => 0.004; # If you plan to run the server
-
 author_tests('xt');
 
 auto_set_repository;

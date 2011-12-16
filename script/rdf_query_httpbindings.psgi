@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-use Web::Simple 'RDF::GraphStore::PlackServer';
 use RDF::Trine;
 use Config::JFDI;
 use RDF::GraphStore;
