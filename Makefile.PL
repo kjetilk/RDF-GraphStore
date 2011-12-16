@@ -1,8 +1,8 @@
 use inc::Module::Install;
 
-name     'RDF-Query-HTTPBindings';
-all_from 'lib/RDF/Query/HTTPBindings.pm';
-readme_from 'lib/RDF/Query/HTTPBindings.pm';
+name     'RDF-GraphStore';
+all_from 'lib/RDF/GraphStore.pm';
+readme_from 'lib/RDF/GraphStore.pm';
 author   q{Kjetil Kjernsmo <kjetilk@cpan.org>};
 license  'perl';
 
@@ -15,8 +15,10 @@ requires 'Log::Log4perl'		=> 0;
 requires 'RDF::Trine'			=> 0.130;
 requires 'RDF::Query'			=> 2.9;
 requires 'Plack::Response'		=> 0;
-requires 'namespace::autoclean'         => 0;
+requires 'namespace::autoclean'         => 0.12;
 requires 'URI'                          => 0;
+
+requires 'Config::JFDI'                 => 0;
 
 author_tests('xt');
 
