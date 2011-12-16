@@ -9,7 +9,7 @@ use Test::WWW::Mechanize::PSGI;
 use RDF::Trine::Serializer::RDFXML;
 use RDF::Trine::Serializer::Turtle;
 
-BEGIN { require 'script/rdf_query_httpbindings.psgi'; }
+BEGIN { require 'script/rdf_graphstore.psgi'; }
 
 my $serializer = RDF::Trine::Serializer::RDFXML->new;
 

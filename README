@@ -1,0 +1,119 @@
+NAME
+    RDF::GraphStore - SPARQL 1.1 HTTP Bindings
+
+VERSION
+    Version 0.01
+
+DESCRIPTION
+    This module attempts to track the SPARQL 1.1. HTTP Bindings document,
+    currently mostly as a discussion item.
+
+    This first release contains the queries specified in the specification,
+    but be warned that this is not the most efficient way to implement the
+    specification, and is subject to change in later releases.
+
+    The SPARQL 1.1 HTTP bindings document, which can be found at
+    <http://www.w3.org/TR/sparql11-http-rdf-update/> specifies how RDF
+    graphs can be updated with using four HTTP verbs in a RESTful manner.
+    This module is first and foremost intended as a discussion item
+    implementation of the proposed protocol.
+
+METHODS
+  model
+    The model we're working on.
+
+  headers_in ( [ $headers ] )
+    Returns the HTTP::Headers object if it exists or sets it if a
+    HTTP::Headers object is given as parameter.
+
+  response
+    Returns the Plack::Response object if it exists
+
+  clear_response
+    Clears the Plack::Response object
+
+  has_response
+    Returns true if the "response" is initialized
+
+  graph_uri ($uri)
+    Returns the HTTP::Headers object if it exists or sets it if a
+    HTTP::Headers object is given as parameter.
+
+  has_graph_uri
+    Returns true if the graph_uri has been set.
+
+  init ( $headers, $graph_uri )
+    A method to clear the response, set the headers and the graph URI. The
+    graph URI may be either a URI object or a string.
+
+  get_response
+    What to do with a GET request. Takes a URI object or a simple string as
+    argument. Returns a Plack::Response object.
+
+  put_response
+    What to do with a PUT request. Returns a Plack::Response object.
+
+  post_response
+    What to do with a POST request. Returns a Plack::Response object.
+
+  delete_response
+    What to do with a DELETE request. Returns a Plack::Response object.
+
+  payload_model ( $request )
+    Return a RDF::Trine::Model with the triples from the payload.
+
+AUTHOR
+    Kjetil Kjernsmo, "<kjetilk at cpan.org>"
+
+BUGS
+    Please report any bugs or feature requests to
+    "bug-rdf-query-httpbindings at rt.cpan.org", or through the web
+    interface at
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=RDF-Query-HTTPBindings>.
+    I will be notified, and then you'll automatically be notified of
+    progress on your bug as I make changes.
+
+FUTURE DIRECTIONS
+    The current implementation's main goal is to be close to the
+    specification, and thus it contains the query strings as given in the
+    specification. However, this is not the best way to implement this, as a
+    pure RDF::Trine implementation is possible.
+
+    Once the specification is finalized, the plan is to create a Moose::Role
+    with a default implementation that does this the most efficient way, and
+    leave the present implementation as an alternative implementation for
+    demonstration purposes.
+
+SUPPORT
+    You can find documentation for this module with the perldoc command.
+
+        perldoc RDF::GraphStore
+
+    You can also look for information at:
+
+    *   RT: CPAN's request tracker
+
+        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=RDF-Query-HTTPBindings>
+
+    *   AnnoCPAN: Annotated CPAN documentation
+
+        <http://annocpan.org/dist/RDF-Query-HTTPBindings>
+
+    *   CPAN Ratings
+
+        <http://cpanratings.perl.org/d/RDF-Query-HTTPBindings>
+
+    *   Search CPAN
+
+        <http://search.cpan.org/dist/RDF-Query-HTTPBindings/>
+
+ACKNOWLEDGEMENTS
+LICENSE AND COPYRIGHT
+    Copyright 2010 Kjetil Kjernsmo.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of either: the GNU General Public License as published
+    by the Free Software Foundation; or the Artistic License.
+
+    See http://dev.perl.org/licenses/ for more information.
+
