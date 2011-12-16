@@ -162,7 +162,7 @@ sub get_response {
   my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
   my $output = $serializer->serialize_iterator_to_string($iterator);
 
-  if (defined($iterator) && ($iterator->is_graph) && ($iterator->count > 0)) {
+  if (defined($iterator) && ($iterator->is_graph)){# && ($iterator->materialize->length > 0)) {
     my $body = encode_utf8($output);
     $self->response->body($body);
     $self->response->content_type($ct);

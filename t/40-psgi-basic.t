@@ -9,13 +9,13 @@ use Test::WWW::Mechanize::PSGI;
 use RDF::Trine::Serializer::RDFXML;
 use RDF::Trine::Serializer::Turtle;
 
-BEGIN { require 'script/rdf_graphstore.psgi'; }
+my  $tester = do 'script/rdf_graphstore.psgi';
 
 my $serializer = RDF::Trine::Serializer::RDFXML->new;
 
 my $base_uri = 'http://localhost:5000';
 
-my $mech = Test::WWW::Mechanize::PSGI->new(app => RDF::GraphStore::PlackServer->as_psgi_app);
+my $mech = Test::WWW::Mechanize::PSGI->new(app => $tester);
 
 my $uri1 = URI->new('http://localhost:5000/graphs/g1');
 isa_ok($uri1, 'URI', "URI 1 object OK");

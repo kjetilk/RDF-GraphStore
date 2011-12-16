@@ -1,6 +1,7 @@
 package Plack::Middleware::GraphStore;
 use parent qw( Plack::Middleware );
 use RDF::GraphStore;
+use Plack::Request;
 
 sub prepare_app {
 	my $self = shift;
@@ -12,11 +13,11 @@ sub prepare_app {
 sub call {
 	my($self, $env) = @_;
 	my $req = Plack::Request->new($env);
-	$gs->init($req->headers, $req->uri);
+	$self->{graphstore}->init($req->headers, $req->uri);
 	my $res = $self->app->($env);
 
+	$res = $self->{graphstore}->get_response->finalize;
 
-	# Do something with $res
 	return $res;
 }
 
