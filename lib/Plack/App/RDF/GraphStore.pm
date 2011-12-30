@@ -2,6 +2,7 @@ package Plack::App::RDF::GraphStore;
 use parent qw( Plack::Component );
 use RDF::GraphStore;
 use Plack::Request;
+use feature qw/switch/;
 
 sub configure {
 	my $self = shift;
@@ -20,8 +21,24 @@ sub call {
 	my($self, $env) = @_;
 	my $req = Plack::Request->new($env);
 	$self->{graphstore}->init($req->headers, $req->uri);
-	my $res = $self->{graphstore}->get_response->finalize;
-
+	my $res;
+	given ($req->method) {
+		when ('GET') {
+			$res = $self->{graphstore}->get_response->finalize;
+		}
+		when ('PUT') {
+			$res = $self->{graphstore}->put_response->finalize;
+		}
+		when ('DELETE') {
+			$res = $self->{graphstore}->delete_response->finalize;
+		}
+		when ('POST') {
+			$res = $self->{graphstore}->post_response->finalize;
+		}
+		default {
+			$res = [ 405, [ 'Content-type', 'text/plain' ], [ 'Method not allowed' ] ];
+		}
+	}
 	return $res;
 }
 
