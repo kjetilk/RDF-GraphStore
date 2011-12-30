@@ -1,5 +1,5 @@
-package Plack::Middleware::GraphStore;
-use parent qw( Plack::Middleware );
+package Plack::App::RDF::GraphStore;
+use parent qw( Plack::Component );
 use RDF::GraphStore;
 use Plack::Request;
 
@@ -14,9 +14,7 @@ sub call {
 	my($self, $env) = @_;
 	my $req = Plack::Request->new($env);
 	$self->{graphstore}->init($req->headers, $req->uri);
-	my $res = $self->app->($env);
-
-	$res = $self->{graphstore}->get_response->finalize;
+	my $res = $self->{graphstore}->get_response->finalize;
 
 	return $res;
 }
