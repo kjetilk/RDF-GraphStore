@@ -157,12 +157,11 @@ sub get_response {
   
   my $sparql = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <$uri> { ?s ?p ?o } }";
   my $query = RDF::Query->new($sparql);
-  my $iterator = $query->execute($self->model);
+  my $iterator = $query->execute($self->model)->materialize;
   # Need to serialize first to find the number of returned triples
   my ($ct, $serializer) = RDF::Trine::Serializer->negotiate('request_headers' => $self->headers_in);
   my $output = $serializer->serialize_iterator_to_string($iterator);
-
-  if (defined($iterator) && ($iterator->is_graph)){# && ($iterator->materialize->length > 0)) {
+  if (defined($iterator) && ($iterator->is_graph) && ($iterator->length > 0)) {
     my $body = encode_utf8($output);
     $self->response->body($body);
     $self->response->content_type($ct);
