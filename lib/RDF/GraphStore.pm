@@ -166,7 +166,6 @@ sub get_response {
     my $body = encode_utf8($output);
     $self->response->body($body);
     $self->response->content_type($ct);
-    $self->response->content_length(bytes::length($body));
     $self->response->status(200);
     if (defined($etag)) {
       $self->response->headers->header( ETag => $etag );

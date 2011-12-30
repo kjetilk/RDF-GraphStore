@@ -26,5 +26,6 @@ my $rdf_graphstore = $graphstore->to_app;
 
 builder {
 	enable "Plack::Middleware::Head";
+	enable "Plack::Middleware::ContentLength";
 	$rdf_graphstore;
 };
