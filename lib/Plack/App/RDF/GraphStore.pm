@@ -2,6 +2,7 @@ package Plack::App::RDF::GraphStore;
 use parent qw( Plack::Component );
 use RDF::GraphStore;
 use Plack::Request;
+use 5.010;
 use feature qw/switch/;
 
 sub configure {
@@ -34,6 +35,9 @@ sub call {
 		}
 		when ('POST') {
 			$res = $self->{graphstore}->post_response->finalize;
+		}
+		when ('HEAD') {
+			$res = $self->{graphstore}->get_response->finalize; # Leave to Plack::Middleware::Head
 		}
 		default {
 			$res = [ 405, [ 'Content-type', 'text/plain' ], [ 'Method not allowed' ] ];

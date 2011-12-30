@@ -6,6 +6,7 @@ readme_from 'lib/RDF/GraphStore.pm';
 author   q{Kjetil Kjernsmo <kjetilk@cpan.org>};
 license  'perl';
 
+perl_version '5.010';
 test_requires 'Test::More';
 test_requires 'Test::Moose';
 test_requires 'Test::Exception';

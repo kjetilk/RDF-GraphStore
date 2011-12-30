@@ -27,24 +27,24 @@ diag "HEAD request";
 
 
 $mech->head($uri1);
-is($mech->status, 200, "Returns 200");
+is($mech->status, 200, "HEAD Returns 200");
 $mech->content_is('', 'No content');
 
 $mech->head($uri2);
-is($mech->status, 404, "Returns 404");
+is($mech->status, 404, "HEAD Returns 404 on non-existant URI");
 $mech->content_is('', 'No content');
 
 diag "GET request";
 
 
 $mech->get($uri1);
-is($mech->status, 200, "Returns 200");
+is($mech->status, 200, "GET Returns 200");
 $mech->content_contains('This is a test', 'Test string found.');
 
 is($mech->content_type, 'text/turtle', 'Correct content type');
 
 $mech->get($uri2);
-is($mech->status, 404, "Returns 404");
+is($mech->status, 404, "GET Returns 404 on non-existant URI");
 
 diag 'POST request';
 
