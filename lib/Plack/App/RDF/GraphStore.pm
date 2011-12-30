@@ -3,6 +3,12 @@ use parent qw( Plack::Component );
 use RDF::GraphStore;
 use Plack::Request;
 
+sub configure {
+	my $self = shift;
+	$self->{config} = shift;
+	return $self;
+}
+
 sub prepare_app {
 	my $self = shift;
 	my $store = RDF::Trine::Store->new($self->{config});

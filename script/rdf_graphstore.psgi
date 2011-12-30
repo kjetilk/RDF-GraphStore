@@ -3,7 +3,7 @@
 use RDF::Trine;
 
 use Config::JFDI;
-use Plack::Middleware::GraphStore;
+use Plack::App::RDF::GraphStore;
 
 use Carp qw(confess);
 use URI;
@@ -17,8 +17,14 @@ BEGIN {
 use Data::Dumper;
 
 warn Dumper($config);
-my $rdf_graphstore = sub { return ['', '', '']};
+
+my $graphstore = Plack::App::RDF::GraphStore->new();
+
+$graphstore->configure($config);
+
+my $rdf_graphstore = $graphstore->to_app;
+
 builder {
-	enable "Plack::Middleware::GraphStore", (config => $config);
+	enable "Plack::Middleware::Head";
 	$rdf_graphstore;
 };
