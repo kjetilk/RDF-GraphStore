@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 36;
+use Test::More;# tests => 36;
 use Test::WWW::Mechanize::PSGI;
 
 use RDF::Trine::Serializer::RDFXML;
@@ -103,6 +103,24 @@ $mech->content_contains('DAHUT', 'DAHUT test string found.');
 $mech->get($uri1); # Check that we get what we posted.
 is($mech->status, 200, "Returns 200");
 $mech->content_contains('DAHUUUUUUT', 'DAHUUUUUUT test string found.');
+
+{
+  my $inputmodel = RDF::Trine::Model->temporary_model;
+  $inputmodel->add_statement(RDF::Trine::Statement->new(
+			      RDF::Trine::Node::Resource->new('/bazfoo', $base_uri),
+			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
+			      RDF::Trine::Node::Literal->new('DAAAAHUUUT')));
+
+  my $rdfxml = $serializer->serialize_model_to_string($inputmodel);
+  $mech->post($uri1, Content => $rdfxml);
+
+  is($mech->status, 204, "POSTing RDF/XML with no content-type gives 204");
+  $mech->content_is('', 'No content');
+}
+
+$mech->get($uri1); # Check that we get what we posted.
+is($mech->status, 200, "Returns 200");
+$mech->content_contains('DAAAAHUUUT', 'DAAAAHUUUT test string found.');
 
 
 diag 'PUT request';
