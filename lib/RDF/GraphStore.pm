@@ -280,7 +280,7 @@ sub payload_model {
       $self->response->body("No content type present.");
       return undef;
   }
-  unless ($parser) { # This is underspecified
+  unless ($parser) {
     $parser = RDF::Trine::Parser->new('rdfxml');
   }
 
