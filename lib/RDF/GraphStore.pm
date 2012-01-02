@@ -186,7 +186,7 @@ sub put_response {
   my $self = shift;
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
-  my $new_model = shift;
+  my $new_model = $self->payload_model(shift);
   my $sparql = "DROP SILENT GRAPH <$uri>;\n";
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
@@ -212,10 +212,10 @@ What to do with a POST request. Returns a Plack::Response object.
 =cut
 
 sub post_response {
-  my $self = shift;
+  my ($self, $req) = @_;
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
-  my $add_model = shift;
+  my $add_model = $self->payload_model($req);
   unless (defined($add_model) && $add_model->isa('RDF::Trine::Model')) {
     return $self->response if $self->has_response;
     $self->response->code(204);
@@ -262,8 +262,10 @@ sub payload_model {
   return undef if (! defined($req->content_length) || ($req->content_length == 0));
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
- 
-  if ( my ($type) = $req->header( 'Content-Type' )) {
+
+  my ($type) = $req->header( 'Content-Type' );
+  warn $type;
+  if ($type) {
     my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
     if ($pclass) {
       $parser = $pclass->new();
@@ -274,7 +276,7 @@ sub payload_model {
       return undef;
     }
 
-  }  else {
+  } elsif ($type ne 'application/rdf+xml') {
       $self->response->status(415);
       $self->response->content_type('text/plain');
       $self->response->body("No content type present.");

@@ -28,13 +28,13 @@ sub call {
 			$res = $self->{graphstore}->get_response->finalize;
 		}
 		when ('PUT') {
-			$res = $self->{graphstore}->put_response->finalize;
+			$res = $self->{graphstore}->put_response($req)->finalize;
 		}
 		when ('DELETE') {
 			$res = $self->{graphstore}->delete_response->finalize;
 		}
 		when ('POST') {
-			$res = $self->{graphstore}->post_response->finalize;
+			$res = $self->{graphstore}->post_response($req)->finalize;
 		}
 		when ('HEAD') {
 			$res = $self->{graphstore}->get_response->finalize; # Leave to Plack::Middleware::Head
