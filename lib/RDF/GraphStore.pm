@@ -264,45 +264,44 @@ sub payload_model {
   my $parser;
 
   my ($type) = $req->header( 'Content-Type' );
-  warn $type;
   if ($type) {
-    my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
-    if ($pclass) {
-      $parser = $pclass->new();
-    } else {
-      $self->response->status(415);
-      $self->response->content_type('text/plain');
-      $self->response->body("Unsupported Content Type: $type");
-      return undef;
-    }
-
-  } elsif ($type ne 'application/rdf+xml') {
-      $self->response->status(415);
-      $self->response->content_type('text/plain');
-      $self->response->body("No content type present.");
-      return undef;
+	  my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
+	  if ($pclass) {
+		  $parser = $pclass->new();
+	  } else {
+		  $self->response->status(415);
+		  $self->response->content_type('text/plain');
+		  $self->response->body("Unsupported Content Type: $type");
+		  return undef;
+	  }
   }
   unless ($parser) {
-    $parser = RDF::Trine::Parser->new('rdfxml');
+	  $parser = RDF::Trine::Parser->new('rdfxml');
   }
 
   my $content = '';
   my $read = 0;
   my $io = $req->input;
   while (1) {
-    my $r = $io->read($content, 1024, $read);
+    my $r = $io->read($content, 1024, $read); # Cargo cultish
     $read += $r;
     last unless $r;
   }
 
   eval {
-    $parser->parse_into_model( $self->graph_uri, $content, $model );
+	  $parser->parse_into_model( $self->graph_uri, $content, $model );
   };
   if ($@) {
-    $self->response->status(400);
-    $self->response->content_type('text/plain');
-    $self->response->body("Failed to parse payload with according to specified content type: $@");
-    return undef;
+	  unless ($type) {
+		  $self->response->status(415);
+		  $self->response->content_type('text/plain');
+		  $self->response->body("No content type present and payload failed to parse as RDF/XML.");
+		  return undef;
+	  }
+	  $self->response->status(400);
+	  $self->response->content_type('text/plain');
+	  $self->response->body("Failed to parse payload with according to specified content type: $@");
+	  return undef;
   }
 
   return $model;

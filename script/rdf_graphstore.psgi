@@ -16,8 +16,6 @@ BEGIN {
 
 use Data::Dumper;
 
-warn Dumper($config);
-
 my $graphstore = Plack::App::RDF::GraphStore->new();
 
 $graphstore->configure($config);

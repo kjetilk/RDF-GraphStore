@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More;# tests => 36;
+use Test::More tests => 40;
 use Test::WWW::Mechanize::PSGI;
 
 use RDF::Trine::Serializer::RDFXML;
@@ -119,19 +119,13 @@ use HTTP::Request::Common qw(POST PUT);
   my $request = POST ($uri1, Content => $rdfxml);
   $request->remove_header( "Content-type" );
   $mech->request( $request );
- TODO: {
-	  local $TODO = "no content-type";
   is($mech->status, 204, "POSTing RDF/XML with no content-type gives 204");
   $mech->content_is('', 'No content');
-  }
 }
 
 $mech->get($uri1); # Check that we get what we posted.
 is($mech->status, 200, "Returns 200");
- TODO: {
-	  local $TODO = "no content-type";
 $mech->content_contains('DAAAAHUUUT', 'DAAAAHUUUT test string found.');
-  }
 
 
 diag 'PUT request';
