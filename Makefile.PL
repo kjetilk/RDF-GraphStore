@@ -10,6 +10,7 @@ perl_version '5.010';
 test_requires 'Test::More';
 test_requires 'Test::Moose';
 test_requires 'Test::Exception';
+test_requires 'HTTP::Request::Common';
 
 requires 'Moose'			=> 0;
 requires 'Log::Log4perl'		=> 0;
