@@ -40,9 +40,9 @@ isa_ok($get, 'Plack::Response', 'get_response returns');
 
 is($get->code, 200, "Getting a graph OK");
 like($get->body, qr/"This is a test"\@en/, 'Test string found');
-like($get->body, qr|<http://localhost:5000/foo> <http://xmlns.com/foaf/0.1/page> <http://en.wikipedia.org/wiki/Foo> ;\s+<http://www.w3.org/2000/01/rdf-schema#label> "This is a test"\@en .\s+<http://localhost:5000/bar/baz/bing> <http://www.w3.org/2000/01/rdf-schema#label> "Testing with longer URI."\@en .|, "All content matches");
-
 is($get->content_type, 'text/turtle', 'Correct content type');
+is_rdf($get->body, 'turtle', '<http://localhost:5000/foo> <http://xmlns.com/foaf/0.1/page> <http://en.wikipedia.org/wiki/Foo> ; <http://www.w3.org/2000/01/rdf-schema#label> "This is a test"@en . <http://localhost:5000/bar/baz/bing> <http://www.w3.org/2000/01/rdf-schema#label> "Testing with longer URI."@en .', 'turtle', 'All content matches');
+
 
 $hb->clear_response;
 $hb->graph_uri($uri2);
@@ -84,7 +84,7 @@ $h->header('Content-Type' => 'text/turtle');
 
   is($get_after_post->code, 200, "Getting POSTed graph OK");
   like($get_after_post->body, qr/DAHUT/, 'Posted test string refound');
-  like($get_after_post->body, qr|<http://localhost:5000/foo>\s+<http://xmlns.com/foaf/0.1/name>\s+"DAHUT"\s+;\s+<http://xmlns.com/foaf/0.1/page>\s+<http://en.wikipedia.org/wiki/Foo>\s+;\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"This is a test"\@en\s+.\s+<http://localhost:5000/bar/baz/bing>\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"Testing with longer URI."\@en\s+.|, "All content matches");
+  is_rdf($get_after_post->body, 'turtle', '<http://localhost:5000/foo> <http://xmlns.com/foaf/0.1/name> "DAHUT" ; <http://xmlns.com/foaf/0.1/page> <http://en.wikipedia.org/wiki/Foo> ; <http://www.w3.org/2000/01/rdf-schema#label> "This is a test"@en . <http://localhost:5000/bar/baz/bing> <http://www.w3.org/2000/01/rdf-schema#label> "Testing with longer URI."@en .', 'turtle', 'All content matches');
 }
 
 note 'PUT request';
