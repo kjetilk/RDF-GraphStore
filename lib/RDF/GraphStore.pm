@@ -215,6 +215,8 @@ sub post_response {
   my ($self, $req) = @_;
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
+  warn ref($req);
+  warn $req->content;
   my $add_model = $self->payload_model($req);
   unless (defined($add_model) && $add_model->isa('RDF::Trine::Model')) {
     return $self->response if $self->has_response;
@@ -262,7 +264,6 @@ sub payload_model {
   return undef if (! defined($req->content_length) || ($req->content_length == 0));
   my $model = RDF::Trine::Model->temporary_model;
   my $parser;
-
   my ($type) = $req->header( 'Content-Type' );
   if ($type) {
 	  my $pclass = RDF::Trine::Parser->parser_by_media_type( $type );
@@ -279,17 +280,8 @@ sub payload_model {
 	  $parser = RDF::Trine::Parser->new('rdfxml');
   }
 
-  my $content = '';
-  my $read = 0;
-  my $io = $req->input;
-  while (1) {
-    my $r = $io->read($content, 1024, $read); # Cargo cultish
-    $read += $r;
-    last unless $r;
-  }
-
   eval {
-	  $parser->parse_into_model( $self->graph_uri, $content, $model );
+	  $parser->parse_into_model( $self->graph_uri, $req->content, $model ); # When will $req->content fail?
   };
   if ($@) {
 	  unless ($type) {

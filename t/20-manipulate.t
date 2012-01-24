@@ -2,9 +2,11 @@
 use strict;
 use Test::More  tests => 35;
 use Test::Moose;
+use Test::RDF;
 use Test::Exception;
 use URI;
 use HTTP::Headers;
+use HTTP::Request;
 use FindBin qw($Bin);
 
 BEGIN {
@@ -51,41 +53,47 @@ is($get2->code, 404, "Getting a non-existent graph returns 404");
 
 note 'POST request';
 
+my $h = HTTP::Headers->new;
+$h->header('Content-Type' => 'text/turtle');
+
 {
   $hb->clear_response;
   $hb->graph_uri($uri1);
-  my $post = $hb->post_response;
+  my $r = HTTP::Request->new('POST', $hb->graph_uri, $h, '');
+  my $post = $hb->post_response($r);
   isa_ok($post, 'Plack::Response', 'post_response returns');
   is($post->code, 204, "POSTing no model gives 204");
   is(length($post->body), 0, "No content returned");
 }
 
-  my $inputmodel = RDF::Trine::Model->temporary_model;
-  $inputmodel->add_statement(RDF::Trine::Statement->new(
-			      RDF::Trine::Node::Resource->new('/foo', $base_uri),
-			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
-			      RDF::Trine::Node::Literal->new('DAHUT')));
+{
   $hb->clear_response;
   $hb->graph_uri($uri1);
-  my $post = $hb->post_response($inputmodel);
+
+  my $content = "<$base_uri/foo> <http://xmlns.com/foaf/0.1/name> \"DAHUT\" .";
+  $h->header('Content-Length' => length($content));
+  my $r = HTTP::Request->new('POST', $hb->graph_uri, $h, $content);
+  my $post = $hb->post_response($r);
   isa_ok($post, 'Plack::Response', 'post_response returns');
   is($post->code, 204, "POSTing a model gives 204");
   is(length($post->body), 0, "No content returned");
 
-  $hb->clear_response;
+#  $hb->clear_response;
   my $get_after_post = $hb->get_response;
   isa_ok($get_after_post, 'Plack::Response', 'get_response returns');
 
   is($get_after_post->code, 200, "Getting POSTed graph OK");
   like($get_after_post->body, qr/DAHUT/, 'Posted test string refound');
   like($get_after_post->body, qr|<http://localhost:5000/foo>\s+<http://xmlns.com/foaf/0.1/name>\s+"DAHUT"\s+;\s+<http://xmlns.com/foaf/0.1/page>\s+<http://en.wikipedia.org/wiki/Foo>\s+;\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"This is a test"\@en\s+.\s+<http://localhost:5000/bar/baz/bing>\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"Testing with longer URI."\@en\s+.|, "All content matches");
+}
 
 note 'PUT request';
 
 {
   $hb->clear_response;
   $hb->graph_uri($uri2);
-  my $put = $hb->put_response;
+  my $r = HTTP::Request->new('PUT', $hb->graph_uri, $h, '');
+  my $put = $hb->put_response($r);
   isa_ok($put, 'Plack::Response', 'put_response returns');
   is($put->code, 204, "PUTing nothing gives 204");
  TODO: {
@@ -96,14 +104,13 @@ note 'PUT request';
 
 {
   my $inputmodel = RDF::Trine::Model->temporary_model;
-  $inputmodel->add_statement(RDF::Trine::Statement->new(
-			      RDF::Trine::Node::Resource->new('/bar', $base_uri),
-			      RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name'),
-			      RDF::Trine::Node::Literal->new('DAAAHUUUUT')));
+  my $content ="<$base_uri/bar> <http://xmlns.com/foaf/0.1/name> \"DAAAHUUUUT\" .";
+  $h->header('Content-Length' => length($content));
+  my $r = HTTP::Request->new('PUT', $hb->graph_uri, $h, $content);
 
   $hb->clear_response;
   $hb->graph_uri($uri2);
-  my $put = $hb->put_response($inputmodel);
+  my $put = $hb->put_response($r);
   isa_ok($put, 'Plack::Response', 'put_response returns');
   is($put->code, 201, "PUTing model gives 201");
 
