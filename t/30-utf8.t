@@ -2,6 +2,7 @@
 use strict;
 use Test::More  tests => 6;
 use Test::Moose;
+use Test::RDF;
 use URI;
 use HTTP::Headers;
 use FindBin qw($Bin);
@@ -34,8 +35,10 @@ isa_ok($get, 'Plack::Response', 'get_response returns');
 
 is($get->code, 200, "Getting a graph OK");
 
-TODO: {
-  local $TODO = "Fix UTF-8 handling with Plack";
-like($get->body, qr/"Blåbærsyltetøy"\@no/, 'Test string with Norwegian characters found');
-}
+my $tmpmodel = RDF::Trine::Model->temporary_model;
+my $tparser     = RDF::Trine::Parser->new( 'turtle' );
+$tparser->parse_into_model($uri, $get->body, $tmpmodel);
+
+has_literal("Blåbærsyltetøy", 'no', undef, $tmpmodel, 'Test string with Norwegian characters found');
+
 done_testing;
