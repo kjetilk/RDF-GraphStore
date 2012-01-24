@@ -215,8 +215,6 @@ sub post_response {
   my ($self, $req) = @_;
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
-  warn ref($req);
-  warn $req->content;
   my $add_model = $self->payload_model($req);
   unless (defined($add_model) && $add_model->isa('RDF::Trine::Model')) {
     return $self->response if $self->has_response;

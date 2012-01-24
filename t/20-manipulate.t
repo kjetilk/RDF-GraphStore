@@ -78,7 +78,7 @@ $h->header('Content-Type' => 'text/turtle');
   is($post->code, 204, "POSTing a model gives 204");
   is(length($post->body), 0, "No content returned");
 
-#  $hb->clear_response;
+  $hb->clear_response;
   my $get_after_post = $hb->get_response;
   isa_ok($get_after_post, 'Plack::Response', 'get_response returns');
 
