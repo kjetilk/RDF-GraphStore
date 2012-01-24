@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More  tests => 35;
+use Test::More  tests => 34;
 use Test::Moose;
 use Test::RDF;
 use Test::Exception;
@@ -88,6 +88,7 @@ $h->header('Content-Type' => 'text/turtle');
 }
 
 note 'PUT request';
+note 'We have no stores that record empty graphs, some of these tests will have different results for such.';
 
 {
   $hb->clear_response;
@@ -96,10 +97,6 @@ note 'PUT request';
   my $put = $hb->put_response($r);
   isa_ok($put, 'Plack::Response', 'put_response returns');
   is($put->code, 204, "PUTing nothing gives 204");
- TODO: {
-    local $TODO = 'Ask WG if this should have a Location, since you cannot GET from it, or can you?';
-    is($put->location, $uri2, "Should return a Location to the same URI");
-  }
 }
 
 {
@@ -144,7 +141,7 @@ note 'DELETE request';
   my $delete = $hb->delete_response($uri2);
   isa_ok($delete, 'Plack::Response', 'delete_response returns');
 TODO: {
-  local $TODO = 'I have to check if the URI exists and throw 404';
+  local $TODO = 'The WG says I have to check this, but it adds too much overhead.';
 
   is($delete->code, 404, "DELETEing a graph that doesn't exist gives 404");
 }}
