@@ -93,6 +93,7 @@ note 'We have no stores that record empty graphs, some of these tests will have 
 {
   $hb->clear_response;
   $hb->graph_uri($uri2);
+  $h->remove_header('Content-Length');
   my $r = HTTP::Request->new('PUT', $hb->graph_uri, $h, '');
   my $put = $hb->put_response($r);
   isa_ok($put, 'Plack::Response', 'put_response returns');

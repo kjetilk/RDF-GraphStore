@@ -183,10 +183,10 @@ What to do with a PUT request. Returns a Plack::Response object.
 =cut
 
 sub put_response {
-  my $self = shift;
+  my ($self, $req) = @_;
   confess('No graph URI given') unless $self->has_graph_uri;
   my $uri = $self->graph_uri;
-  my $new_model = $self->payload_model(shift);
+  my $new_model = $self->payload_model($req);
   my $sparql = "DROP SILENT GRAPH <$uri>;\n";
   if (defined($new_model) && $new_model->isa('RDF::Trine::Model')) {
     # TODO: How do we escape the payload for security?
