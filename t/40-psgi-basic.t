@@ -23,7 +23,7 @@ isa_ok($uri1, 'URI', "URI 1 object OK");
 my $uri2 = URI->new('http://localhost:5000/graphs/g3');
 isa_ok($uri2, 'URI', "URI 2 object OK");
 
-diag "HEAD request";
+note "HEAD request";
 
 
 $mech->head($uri1);
@@ -34,7 +34,7 @@ $mech->head($uri2);
 is($mech->status, 404, "HEAD Returns 404 on non-existant URI");
 $mech->content_is('', 'No content');
 
-diag "GET request";
+note "GET request";
 
 
 $mech->get($uri1);
@@ -46,7 +46,7 @@ is($mech->content_type, 'text/turtle', 'Correct content type');
 $mech->get($uri2);
 is($mech->status, 404, "GET Returns 404 on non-existant URI");
 
-diag 'POST request';
+note 'POST request';
 
 $mech->post($uri1);
 is($mech->status, 204, "POSTing no model gives 204");
@@ -128,7 +128,7 @@ is($mech->status, 200, "Returns 200");
 $mech->content_contains('DAAAAHUUUT', 'DAAAAHUUUT test string found.');
 
 
-diag 'PUT request';
+note 'PUT request';
 
 $mech->put($uri2);
 is($mech->status, 204, "PUTting no model gives 204");
@@ -155,7 +155,7 @@ $mech->get($uri2); # Check that we get what we putted.
 is($mech->status, 200, "Returns 200");
 $mech->content_contains('DAAAHUUUUT', 'PUT test string refound');
 
-diag 'DELETE request';
+note 'DELETE request';
 
 use HTTP::Request;
 {
@@ -169,7 +169,7 @@ $mech->get($uri2);
 is($mech->status, 404, "Getting DELETEd graph returns 404");
 
 
-diag "Unsupported FOOBAR request";
+note "Unsupported FOOBAR request";
 {
   my $request = HTTP::Request->new(FOOBAR => $uri1);
   $mech->request($request);
