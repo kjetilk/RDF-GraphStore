@@ -30,7 +30,7 @@ isa_ok($uri1, 'URI', "URI 1 object OK");
 my $uri2 = URI->new('http://localhost:5000/graphs/g3');
 isa_ok($uri2, 'URI', "URI 2 object OK");
 
-diag "GET request";
+note "GET request";
 $hb->clear_response;
 $hb->graph_uri($uri1);
 my $get = $hb->get_response;
@@ -49,7 +49,7 @@ isa_ok($get2, 'Plack::Response', 'get_response returns');
 
 is($get2->code, 404, "Getting a non-existent graph returns 404");
 
-diag 'POST request';
+note 'POST request';
 
 {
   $hb->clear_response;
@@ -80,7 +80,7 @@ diag 'POST request';
   like($get_after_post->body, qr/DAHUT/, 'Posted test string refound');
   like($get_after_post->body, qr|<http://localhost:5000/foo>\s+<http://xmlns.com/foaf/0.1/name>\s+"DAHUT"\s+;\s+<http://xmlns.com/foaf/0.1/page>\s+<http://en.wikipedia.org/wiki/Foo>\s+;\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"This is a test"\@en\s+.\s+<http://localhost:5000/bar/baz/bing>\s+<http://www.w3.org/2000/01/rdf-schema#label>\s+"Testing with longer URI."\@en\s+.|, "All content matches");
 
-diag 'PUT request';
+note 'PUT request';
 
 {
   $hb->clear_response;
@@ -116,7 +116,7 @@ diag 'PUT request';
 
 }
 
-diag 'DELETE request';
+note 'DELETE request';
 
 {
   $hb->clear_response;
