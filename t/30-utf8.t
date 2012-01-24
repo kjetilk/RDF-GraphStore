@@ -28,7 +28,6 @@ my $uri_string = 'http://localhost:5000/graphs/g2';
 my $uri = URI->new($uri_string);
 ok($uri, "URI object OK");
 
-diag "GET request";
 $hb->graph_uri($uri);
 my $get = $hb->get_response;
 isa_ok($get, 'Plack::Response', 'get_response returns');
